@@ -109,15 +109,7 @@ const UI = {
   detailViews(matches, summary) {
     const jobStats = Analytics.jobStats(matches);
     const allJobSegments = buildAllJobUsageSegments(jobStats, matches.length);
-    document.querySelector("#summaryDetail").innerHTML = `
-      <div class="detail-grid">
-        ${detailCard("総試合数", formatNumber(summary.total))}
-        ${detailCard("1位 / 2位 / 3位", `${summary.ranks[1]} / ${summary.ranks[2]} / ${summary.ranks[3]}`)}
-        ${detailCard("与ダメ1位数", formatNumber(summary.topDamage))}
-        ${detailCard("平均KO/Down/A", `${avgText(matches, "kills")} / ${avgText(matches, "deaths")} / ${avgText(matches, "assists")}`)}
-        ${detailCard("平均与ダメ", formatNumber(avgRaw(matches, "damage")))}
-        ${detailCard("平均回復", formatNumber(avgRaw(matches, "healing")))}
-      </div>`;
+    document.querySelector("#summaryDetail").innerHTML = summaryAnalysis(matches, summary);
     document.querySelector("#jobsDetail").innerHTML = `
       <h3 class="analysis-section-title">ジョブ使用率</h3>
       <section class="full-job-usage">
@@ -161,7 +153,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260707-1835";
+const ASSET_VERSION = "20260707-2000";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -291,4 +283,231 @@ function statTable(stats, showJob, compact) {
       <td>${formatNumber(stat.avgDamage)}</td>
     </tr>`).join("")}
   </tbody></table></div>`;
+}
+
+function summaryAnalysis(matches, summary) {
+  const total = summary.total || 0;
+  const rankTotal = total || 1;
+  const twoRate = total ? (summary.ranks[1] + summary.ranks[2]) / total : 0;
+  const topDamageRate = total ? summary.topDamage / total : 0;
+  const currentStreak = Analytics.currentStreak(matches);
+  const jobStats = Analytics.jobStats(matches);
+  const mapStats = Analytics.mapStats(matches);
+  const latest = Analytics.latest(matches, Math.min(10, matches.length));
+  return `
+    <div class="analysis-page">
+      <section class="analysis-block">
+        <h3>全期間サマリー</h3>
+        <div class="analysis-summary-grid">
+          ${analysisMetric("総試合数", formatNumber(total), "試合")}
+          ${analysisMetric("1位 / 2位 / 3位", `${summary.ranks[1]} / ${summary.ranks[2]} / ${summary.ranks[3]}`, "順位別")}
+          ${analysisMetric("1位率", formatPercent(summary.firstRate), `${summary.ranks[1]} / ${total || 0} 試合`)}
+          ${analysisMetric("2位以内率", formatPercent(twoRate), `${summary.ranks[1] + summary.ranks[2]} / ${total || 0} 試合`)}
+          ${analysisMetric("与ダメージ1位数", formatNumber(summary.topDamage), "回")}
+          ${analysisMetric("与ダメージ1位率", formatPercent(topDamageRate), `${summary.topDamage} / ${total || 0} 試合`)}
+          ${analysisMetric("最大連勝", formatNumber(summary.maxWinStreak), "試合")}
+          ${analysisMetric("現在の連勝", formatNumber(currentStreak), "試合")}
+        </div>
+      </section>
+
+      <section class="analysis-two-column">
+        <article class="analysis-block">
+          <h3>平均戦績</h3>
+          <div class="analysis-average-grid">
+            ${averageMetricCard("平均KO", avgText(matches, "kills"))}
+            ${averageMetricCard("平均Down", avgText(matches, "deaths"))}
+            ${averageMetricCard("平均Assist", avgText(matches, "assists"))}
+            ${averageMetricCard("平均与ダメージ", formatNumber(avgRaw(matches, "damage")))}
+            ${averageMetricCard("平均被ダメージ", formatNumber(avgRaw(matches, "damageTaken")))}
+            ${averageMetricCard("平均回復量", formatNumber(avgRaw(matches, "healing")))}
+            ${averageMetricCard("K/D比", formatDecimal(kdRatio(matches), 2))}
+            ${averageMetricCard("K+A", formatDecimal(avgKA(matches), 1))}
+          </div>
+        </article>
+
+        <article class="analysis-block">
+          <h3>直近比較 <small>全期間 vs 直近${latest.length || 0}戦</small></h3>
+          <div class="comparison-list">
+            ${comparisonRows(matches, latest)}
+          </div>
+        </article>
+      </section>
+
+      <section class="analysis-two-column">
+        <article class="analysis-block">
+          <h3>順位分布</h3>
+          <div class="rank-distribution">
+            ${rankBar("1位", summary.ranks[1], rankTotal, "#d5a22e")}
+            ${rankBar("2位", summary.ranks[2], rankTotal, "#8c8a7e")}
+            ${rankBar("3位", summary.ranks[3], rankTotal, "#ad3725")}
+          </div>
+        </article>
+
+        <article class="analysis-block">
+          <h3>与ダメージ分布</h3>
+          <div class="damage-distribution">
+            ${damageDistribution(matches)}
+          </div>
+        </article>
+      </section>
+
+      <section class="analysis-block">
+        <h3>ジョブランキング</h3>
+        <div class="ranking-grid">
+          ${rankingPanel("1位率ランキング", jobStats, stat => safeRate(stat.firsts, stat.matches), "percent")}
+          ${rankingPanel("平均与ダメージランキング", jobStats, stat => stat.avgDamage, "number")}
+          ${rankingPanel("与ダメージ1位率ランキング", jobStats, stat => safeRate(stat.topDamage, stat.matches), "percent")}
+          ${rankingPanel("平均KOランキング", jobStats, stat => stat.avgKills, "decimal")}
+          ${rankingPanel("平均Assistランキング", jobStats, stat => stat.avgAssists, "decimal")}
+        </div>
+      </section>
+
+      <section class="analysis-block">
+        <h3>マップ別集計への導線</h3>
+        <div class="map-highlight-grid">
+          ${mapHighlight("最も1位率が高いマップ", bestMapBy(mapStats, stat => safeRate(stat.firsts, stat.matches)), "firstRate")}
+          ${mapHighlight("最も平均与ダメージが高いマップ", bestMapBy(mapStats, stat => stat.avgDamage), "damage")}
+        </div>
+        <p class="analysis-note">マップ別の詳細な比較は「マップ別分析」タブで確認できます。</p>
+      </section>
+    </div>
+  `;
+}
+
+function analysisMetric(label, value, note) {
+  return `<article class="analysis-metric"><span>${label}</span><strong>${value}</strong><small>${note}</small></article>`;
+}
+
+function averageMetricCard(label, value) {
+  return `<article class="analysis-average-card"><span>${label}</span><strong>${value}</strong></article>`;
+}
+
+function comparisonRows(allRows, recentRows) {
+  const rows = [
+    ["1位率", rateBy(allRows, row => row.rank === 1), rateBy(recentRows, row => row.rank === 1), "percent", false],
+    ["平均KO", avgRaw(allRows, "kills"), avgRaw(recentRows, "kills"), "decimal", false],
+    ["平均Down", avgRaw(allRows, "deaths"), avgRaw(recentRows, "deaths"), "decimal", true],
+    ["平均Assist", avgRaw(allRows, "assists"), avgRaw(recentRows, "assists"), "decimal", false],
+    ["平均与ダメージ", avgRaw(allRows, "damage"), avgRaw(recentRows, "damage"), "number", false],
+    ["平均被ダメージ", avgRaw(allRows, "damageTaken"), avgRaw(recentRows, "damageTaken"), "number", true],
+    ["平均回復量", avgRaw(allRows, "healing"), avgRaw(recentRows, "healing"), "number", false],
+    ["与ダメージ1位率", rateBy(allRows, row => row.topDamage), rateBy(recentRows, row => row.topDamage), "percent", false]
+  ];
+  return rows.map(([label, allValue, recentValue, type, lowerBetter]) => comparisonRow(label, allValue, recentValue, type, lowerBetter)).join("");
+}
+
+function comparisonRow(label, allValue, recentValue, type, lowerBetter) {
+  const diff = recentValue - allValue;
+  const same = Math.abs(diff) < 0.0001;
+  const sign = same ? "same" : (lowerBetter ? diff < 0 : diff > 0) ? "up" : "down";
+  const marker = sign === "up" ? "▲" : sign === "down" ? "▼" : "→";
+  const diffText = `${diff > 0 ? "+" : diff < 0 ? "-" : ""}${formatTypedValue(diff, type, true)}`;
+  return `
+    <div class="comparison-row ${sign}">
+      <span class="comparison-label">${label}</span>
+      <span class="comparison-values">全期間: ${formatTypedValue(allValue, type)} / 直近: ${formatTypedValue(recentValue, type)}</span>
+      <strong>${marker} ${diffText}</strong>
+    </div>
+  `;
+}
+
+function rankBar(label, value, total, color) {
+  const rate = total ? value / total : 0;
+  return `
+    <div class="distribution-row">
+      <span>${label}</span>
+      <div class="distribution-track"><i style="width:${Math.max(rate * 100, value ? 3 : 0)}%;background:${color}"></i></div>
+      <strong>${formatNumber(value)}戦 ${formatPercent(rate)}</strong>
+    </div>
+  `;
+}
+
+function damageDistribution(matches) {
+  const bins = [
+    ["0〜499,999", 0, 499999],
+    ["500,000〜999,999", 500000, 999999],
+    ["1,000,000〜1,499,999", 1000000, 1499999],
+    ["1,500,000〜1,999,999", 1500000, 1999999],
+    ["2,000,000〜2,499,999", 2000000, 2499999],
+    ["2,500,000以上", 2500000, Infinity]
+  ];
+  const counts = bins.map(([label, min, max]) => ({
+    label,
+    value: matches.filter(match => match.damage >= min && match.damage <= max).length
+  }));
+  const max = Math.max(...counts.map(row => row.value), 1);
+  return counts.map(row => `
+    <div class="distribution-row">
+      <span>${row.label}</span>
+      <div class="distribution-track"><i style="width:${row.value ? Math.max(row.value / max * 100, 4) : 0}%"></i></div>
+      <strong>${row.value}戦</strong>
+    </div>
+  `).join("");
+}
+
+function rankingPanel(title, stats, selector, type) {
+  const rows = [...stats]
+    .map(stat => ({ ...stat, rankingValue: selector(stat) }))
+    .sort((a, b) => b.rankingValue - a.rankingValue)
+    .slice(0, 5);
+  return `
+    <article class="ranking-panel">
+      <h4>${title}</h4>
+      <ol class="ranking-list">
+        ${rows.length ? rows.map((stat, index) => rankingRow(stat, index, type)).join("") : `<li class="empty-row">データなし</li>`}
+      </ol>
+    </article>
+  `;
+}
+
+function rankingRow(stat, index, type) {
+  return `
+    <li>
+      <span class="ranking-order">${index + 1}</span>
+      <span class="ranking-name">${jobSprite(stat.id)}<b>${jobName(stat.id)}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <strong>${formatTypedValue(stat.rankingValue, type)}</strong>
+      <em>${stat.matches}戦</em>
+    </li>
+  `;
+}
+
+function mapHighlight(label, stat, type) {
+  if (!stat) return `<article class="map-highlight"><span>${label}</span><strong>-</strong><small>データなし</small></article>`;
+  const value = type === "firstRate" ? formatPercent(safeRate(stat.firsts, stat.matches)) : formatNumber(stat.avgDamage);
+  const note = type === "firstRate" ? `${stat.firsts} / ${stat.matches} 戦` : `${stat.matches}戦の平均`;
+  return `<article class="map-highlight"><span>${label}</span><strong>${stat.id}</strong><small>${value} ・ ${note}</small></article>`;
+}
+
+function bestMapBy(stats, selector) {
+  return stats.reduce((best, stat) => !best || selector(stat) > selector(best) ? stat : best, null);
+}
+
+function rateBy(rows, predicate) {
+  return rows.length ? rows.filter(predicate).length / rows.length : 0;
+}
+
+function safeRate(value, total) {
+  return total ? value / total : 0;
+}
+
+function kdRatio(rows) {
+  const kills = rows.reduce((sum, row) => sum + Number(row.kills || 0), 0);
+  const deaths = rows.reduce((sum, row) => sum + Number(row.deaths || 0), 0);
+  return deaths ? kills / deaths : kills;
+}
+
+function avgKA(rows) {
+  return rows.length ? rows.reduce((sum, row) => sum + Number(row.kills || 0) + Number(row.assists || 0), 0) / rows.length : 0;
+}
+
+function formatDecimal(value, digits = 1) {
+  return Number(value || 0).toLocaleString("ja-JP", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function formatTypedValue(value, type, signed = false) {
+  const numeric = Number(value || 0);
+  const absValue = signed ? Math.abs(numeric) : numeric;
+  if (type === "percent") return `${Math.round(absValue * 1000) / 10}%`;
+  if (type === "number") return formatNumber(absValue);
+  return formatDecimal(absValue, 1);
 }
