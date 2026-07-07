@@ -830,7 +830,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260707-2000") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260707-2030") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1116,6 +1116,20 @@ tbody tr:hover td {
   text-align: center;
 }
 
+.analysis-metric-featured {
+  grid-column: span 2;
+  min-height: 112px;
+  border-color: #c4943e;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255, 239, 174, .34), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(94,58,18,.14), transparent 34%),
+    #dcc895;
+  box-shadow:
+    inset 0 0 0 2px rgba(96,65,21,.22),
+    inset 0 0 28px rgba(91, 53, 12, .17),
+    0 0 16px rgba(216, 163, 58, .14);
+}
+
 .analysis-metric span,
 .analysis-average-card span,
 .map-highlight span {
@@ -1134,6 +1148,31 @@ tbody tr:hover td {
   font-size: clamp(22px, 2.1vw, 31px);
   line-height: 1;
   white-space: nowrap;
+}
+
+.analysis-metric-featured strong {
+  font-size: clamp(36px, 4vw, 56px);
+  letter-spacing: .03em;
+}
+
+.analysis-average-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analysis-average-card {
+  min-height: 92px;
+  padding: 10px 8px 12px;
+}
+
+.analysis-average-card span {
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(91, 63, 27, .26);
+}
+
+.analysis-average-card strong {
+  margin-top: 11px;
+  font-size: clamp(20px, 1.9vw, 28px);
 }
 
 .analysis-metric small,
@@ -1162,12 +1201,12 @@ tbody tr:hover td {
 
 .comparison-row {
   display: grid;
-  grid-template-columns: minmax(110px, .9fr) minmax(180px, 1.6fr) minmax(88px, .7fr);
+  grid-template-columns: minmax(112px, .9fr) minmax(150px, 1.3fr) minmax(86px, .7fr);
   gap: 8px;
   align-items: center;
   min-width: 0;
-  min-height: 34px;
-  padding: 6px 8px;
+  min-height: 46px;
+  padding: 7px 9px;
   border: 1px solid rgba(140,95,28,.42);
   background: rgba(0, 0, 0, .18);
 }
@@ -1178,6 +1217,9 @@ tbody tr:hover td {
 }
 
 .comparison-values {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   min-width: 0;
   color: #f3d99b;
   overflow: hidden;
@@ -1185,9 +1227,28 @@ tbody tr:hover td {
   white-space: nowrap;
 }
 
+.comparison-values b {
+  color: #ffe6a5;
+  font-weight: 800;
+}
+
+.comparison-values i {
+  color: var(--muted);
+  font-style: normal;
+}
+
 .comparison-row strong {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
   text-align: right;
   white-space: nowrap;
+  font-size: 15px;
+}
+
+.comparison-row strong span {
+  font-size: 17px;
+  line-height: 1;
 }
 
 .comparison-row.up strong { color: #69e38b; }
@@ -1196,7 +1257,7 @@ tbody tr:hover td {
 
 .distribution-row {
   display: grid;
-  grid-template-columns: minmax(116px, .9fr) minmax(150px, 1.4fr) minmax(86px, .7fr);
+  grid-template-columns: minmax(126px, .9fr) minmax(150px, 1.4fr) minmax(96px, .7fr);
   gap: 8px;
   align-items: center;
   min-width: 0;
@@ -1209,8 +1270,22 @@ tbody tr:hover td {
 }
 
 .distribution-row strong {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 7px;
   color: var(--gold-bright);
   text-align: right;
+}
+
+.distribution-row strong b,
+.distribution-row strong small {
+  white-space: nowrap;
+}
+
+.distribution-row strong small {
+  color: #f3d99b;
+  font-size: 12px;
 }
 
 .distribution-track {
@@ -1230,7 +1305,7 @@ tbody tr:hover td {
 
 .ranking-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
   gap: 10px;
   padding: 10px;
 }
@@ -1259,11 +1334,11 @@ tbody tr:hover td {
 
 .ranking-list li {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) minmax(68px, auto) 42px;
-  gap: 6px;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(74px, auto) 42px;
+  gap: 8px;
   align-items: center;
-  min-height: 34px;
-  padding: 4px 5px;
+  min-height: 44px;
+  padding: 5px 7px;
   background: rgba(4, 17, 22, .62);
 }
 
@@ -1282,19 +1357,20 @@ tbody tr:hover td {
 .ranking-name {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
 .ranking-name .job-sprite {
-  flex-basis: 28px;
-  width: 28px;
-  height: 28px;
+  flex-basis: 36px;
+  width: 36px;
+  height: 36px;
 }
 
 .ranking-name b {
   min-width: 0;
   color: #f3d99b;
+  font-size: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1383,19 +1459,28 @@ tbody tr:hover td {
   .analysis-average-grid,
   .map-highlight-grid,
   .ranking-grid { grid-template-columns: 1fr; }
+  .analysis-metric-featured { grid-column: auto; }
   .comparison-row {
     grid-template-columns: 1fr;
     gap: 3px;
   }
-  .comparison-row strong,
+  .comparison-row strong {
+    justify-items: start;
+    text-align: left;
+  }
   .comparison-values { text-align: left; white-space: normal; }
   .distribution-row {
     grid-template-columns: 1fr;
     gap: 4px;
   }
-  .distribution-row strong { text-align: left; }
+  .distribution-row strong { justify-content: flex-start; text-align: left; }
   .ranking-list li {
     grid-template-columns: 24px minmax(0, 1fr) auto;
+  }
+  .ranking-name .job-sprite {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
   }
   .ranking-list em {
     grid-column: 2 / -1;

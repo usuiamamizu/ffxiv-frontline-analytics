@@ -153,7 +153,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260707-2000";
+const ASSET_VERSION = "20260707-2030";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -299,7 +299,7 @@ function summaryAnalysis(matches, summary) {
       <section class="analysis-block">
         <h3>全期間サマリー</h3>
         <div class="analysis-summary-grid">
-          ${analysisMetric("総試合数", formatNumber(total), "試合")}
+          ${analysisMetric("総試合数", formatNumber(total), "試合", "featured")}
           ${analysisMetric("1位 / 2位 / 3位", `${summary.ranks[1]} / ${summary.ranks[2]} / ${summary.ranks[3]}`, "順位別")}
           ${analysisMetric("1位率", formatPercent(summary.firstRate), `${summary.ranks[1]} / ${total || 0} 試合`)}
           ${analysisMetric("2位以内率", formatPercent(twoRate), `${summary.ranks[1] + summary.ranks[2]} / ${total || 0} 試合`)}
@@ -374,8 +374,8 @@ function summaryAnalysis(matches, summary) {
   `;
 }
 
-function analysisMetric(label, value, note) {
-  return `<article class="analysis-metric"><span>${label}</span><strong>${value}</strong><small>${note}</small></article>`;
+function analysisMetric(label, value, note, variant = "") {
+  return `<article class="analysis-metric ${variant ? `analysis-metric-${variant}` : ""}"><span>${label}</span><strong>${value}</strong><small>${note}</small></article>`;
 }
 
 function averageMetricCard(label, value) {
@@ -405,8 +405,8 @@ function comparisonRow(label, allValue, recentValue, type, lowerBetter) {
   return `
     <div class="comparison-row ${sign}">
       <span class="comparison-label">${label}</span>
-      <span class="comparison-values">全期間: ${formatTypedValue(allValue, type)} / 直近: ${formatTypedValue(recentValue, type)}</span>
-      <strong>${marker} ${diffText}</strong>
+      <span class="comparison-values"><b>${formatTypedValue(allValue, type)}</b><i>→</i><b>${formatTypedValue(recentValue, type)}</b></span>
+      <strong><span>${marker}</span> ${diffText}</strong>
     </div>
   `;
 }
@@ -417,7 +417,7 @@ function rankBar(label, value, total, color) {
     <div class="distribution-row">
       <span>${label}</span>
       <div class="distribution-track"><i style="width:${Math.max(rate * 100, value ? 3 : 0)}%;background:${color}"></i></div>
-      <strong>${formatNumber(value)}戦 ${formatPercent(rate)}</strong>
+      <strong><b>${formatNumber(value)}戦</b><small>${formatPercent(rate)}</small></strong>
     </div>
   `;
 }
@@ -440,7 +440,7 @@ function damageDistribution(matches) {
     <div class="distribution-row">
       <span>${row.label}</span>
       <div class="distribution-track"><i style="width:${row.value ? Math.max(row.value / max * 100, 4) : 0}%"></i></div>
-      <strong>${row.value}戦</strong>
+      <strong><b>${row.value}戦</b><small>${formatPercent(matches.length ? row.value / matches.length : 0)}</small></strong>
     </div>
   `).join("");
 }
