@@ -161,6 +161,8 @@ const UI = {
   }
 };
 
+const ASSET_VERSION = "20260707-1835";
+
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
   "#2f6969", "#2d6386", "#34518f", "#51468f", "#6a438d", "#8c4b75", "#a0485a",
@@ -223,18 +225,18 @@ function jobName(id) {
 function jobIcon(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
   if (!job?.icon) return `<span class="job-icon" title="${id}">${id.slice(0, 2)}</span>`;
-  return `<span class="job-icon" title="${job.name}"><img src="./assets/job-icons/${job.icon}" alt="${job.name}"></span>`;
+  return `<span class="job-icon" title="${job.name}"><img src="./assets/job-icons/${job.icon}?v=${ASSET_VERSION}" alt="${job.name}"></span>`;
 }
 function jobSprite(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
   if (!job?.icon) return "";
-  return `<span class="job-sprite" aria-hidden="true"><img src="./assets/job-sprites/${job.icon}" alt=""></span>`;
+  return `<span class="job-sprite" aria-hidden="true"><img src="./assets/job-sprites/${job.icon}?v=${ASSET_VERSION}" alt=""></span>`;
 }
 function jobStatTitle(id) {
   return `
     <div class="job-stat-title">
       ${jobSprite(id)}
-      <span class="job-stat-name">${jobIcon(id)}${jobName(id)}</span>
+      <span class="job-stat-name">${jobName(id)}</span>
     </div>
   `;
 }
