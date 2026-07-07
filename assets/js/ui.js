@@ -225,6 +225,19 @@ function jobIcon(id) {
   if (!job?.icon) return `<span class="job-icon" title="${id}">${id.slice(0, 2)}</span>`;
   return `<span class="job-icon" title="${job.name}"><img src="./assets/job-icons/${job.icon}" alt="${job.name}"></span>`;
 }
+function jobSprite(id) {
+  const job = FFXIV_DATA.jobs.find(item => item.id === id);
+  if (!job?.icon) return "";
+  return `<span class="job-sprite" aria-hidden="true"><img src="./assets/job-sprites/${job.icon}" alt=""></span>`;
+}
+function jobStatTitle(id) {
+  return `
+    <div class="job-stat-title">
+      ${jobSprite(id)}
+      <span class="job-stat-name">${jobIcon(id)}${jobName(id)}</span>
+    </div>
+  `;
+}
 function gcName(name) {
   const cls = name === "黒渦団" ? "maelstrom-text" : name === "双蛇党" ? "adders-text" : "flames-text";
   return `<span class="gc-name ${cls}">${name}</span>`;
@@ -247,7 +260,7 @@ function statCards(stats, showJob, compact) {
   return `<div class="stat-card-grid ${showJob ? "job-stat-grid" : "map-stat-grid"}">
     ${rows.map(stat => `
       <article class="stat-card">
-        <div class="stat-card-title">${showJob ? `${jobIcon(stat.id)}${jobName(stat.id)}` : stat.id}</div>
+        <div class="stat-card-title">${showJob ? jobStatTitle(stat.id) : stat.id}</div>
         <div class="stat-card-main">
           <span><b>${stat.matches}</b><small>試合</small></span>
           <span><b>${stat.firsts}</b><small>1位</small></span>

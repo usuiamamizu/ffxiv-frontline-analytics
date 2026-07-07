@@ -941,11 +941,46 @@ tbody tr:hover td {
 }
 
 .stat-card-title {
-  min-height: 30px;
-  padding: 6px 9px;
+  min-height: 46px;
+  padding: 5px 9px;
   border-bottom: 1px solid rgba(196, 139, 48, .35);
   color: #ffe09c;
   font-weight: 700;
+  overflow: hidden;
+}
+
+.job-stat-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.job-sprite {
+  display: inline-grid;
+  place-items: end center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  overflow: hidden;
+  border: 1px solid rgba(196, 139, 48, .46);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .62);
+  box-shadow: inset 0 0 0 1px rgba(255, 218, 137, .08);
+}
+
+.job-sprite img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.job-stat-name {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
