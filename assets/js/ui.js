@@ -122,12 +122,9 @@ const UI = {
     document.querySelector("#bestsDetail").innerHTML = document.querySelector("#bestRecords").innerHTML;
   },
   charts(matches, summary) {
-    const rankTotal = summary.total || 1;
-    Charts.drawDonut(document.querySelector("#rankChart"), [
-      { label: "1位", value: summary.ranks[1], rate: summary.ranks[1] / rankTotal, color: "#d5a22e" },
-      { label: "2位", value: summary.ranks[2], rate: summary.ranks[2] / rankTotal, color: "#8c8a7e" },
-      { label: "3位", value: summary.ranks[3], rate: summary.ranks[3] / rankTotal, color: "#ad3725" }
-    ], "", { legendPosition: "right", showRate: true });
+    const roleSegments = buildRoleUsageSegments(matches);
+    Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "Roles", { legend: false });
+    this.roleUsageList(roleSegments);
 
     const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
     Charts.drawDonut(document.querySelector("#jobChart"), jobSegments, "Top 5", { legend: false });
@@ -150,16 +147,45 @@ const UI = {
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
       </div>
     `).join("");
+  },
+  roleUsageList(segments) {
+    document.querySelector("#roleUsageList").innerHTML = segments.map(segment => `
+      <div class="usage-row" title="${segment.label}">
+        <span class="usage-swatch" style="background:${segment.color}"></span>
+        <span class="usage-name">${segment.label}</span>
+        <span class="usage-percent">${formatPercent(segment.rate)}</span>
+      </div>
+    `).join("");
   }
 };
 
-const ASSET_VERSION = "20260722-001";
+const ASSET_VERSION = "20260722-002";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
   "#2f6969", "#2d6386", "#34518f", "#51468f", "#6a438d", "#8c4b75", "#a0485a",
   "#b05c74", "#c07b55", "#9e7050", "#7c6f68", "#6c675c", "#8c8a7e", "#d5a22e"
 ];
+
+const ROLE_DEFS = [
+  { id: "tank", label: "タンク", jobs: ["PLD", "WAR", "DRK", "GNB"], color: "#3f7fbf" },
+  { id: "healer", label: "ヒーラー", jobs: ["WHM", "SCH", "AST", "SGE"], color: "#58a85b" },
+  { id: "melee", label: "近接DPS", jobs: ["MNK", "DRG", "NIN", "SAM", "RPR", "VPR"], color: "#c45a4d" },
+  { id: "ranged", label: "遠隔DPS", jobs: ["BRD", "MCH", "DNC", "BLM", "SMN", "RDM", "PCT"], color: "#b48ad9" }
+];
+
+function buildRoleUsageSegments(matches) {
+  const total = matches.length || 1;
+  return ROLE_DEFS.map(role => {
+    const value = matches.filter(match => role.jobs.includes(match.job)).length;
+    return {
+      label: role.label,
+      value,
+      rate: value / total,
+      color: role.color
+    };
+  });
+}
 
 function buildJobUsageSegments(stats, totalMatches) {
   const top = stats.slice(0, 5).map((job, index) => ({

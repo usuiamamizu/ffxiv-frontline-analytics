@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Frontline Record Manager</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-001">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-002">
 </head>
 <body>
   <div class="app-shell">
     <header class="app-header">
       <div class="brand-area">
-        <img class="brand-flags-image" src="./assets/brand/gc-banner-flags.png?v=20260722-001" alt="黒渦団・双蛇党・不滅隊">
+        <img class="brand-flags-image" src="./assets/brand/gc-banner-flags.png?v=20260722-002" alt="黒渦団・双蛇党・不滅隊">
         <div class="brand-title-art" aria-label="FFXIV Frontline Battle Analytics">
           <div class="brand-main-title">FFXIV FRONTLINE BATTLE ANALYTICS</div>
           <div class="brand-ja-title">フロントライン戦績管理 Ver.1.0</div>
@@ -39,9 +39,12 @@
             <div class="ratio-strip" id="ratioStrip"></div>
           </article>
 
-          <article class="panel chart-panel">
-            <div class="panel-head"><h2>順位割合</h2></div>
-            <canvas id="rankChart" height="210"></canvas>
+          <article class="panel chart-panel role-usage-panel">
+            <div class="panel-head"><h2>ロール使用率</h2></div>
+            <div class="job-usage-layout">
+              <canvas id="roleChart" height="210"></canvas>
+              <div id="roleUsageList" class="usage-list"></div>
+            </div>
           </article>
           <article class="panel chart-panel job-usage-panel">
             <div class="panel-head"><h2>ジョブ使用率</h2></div>
@@ -131,11 +134,11 @@
     </main>
   </div>
 
-  <script src="./assets/js/data.js?v=20260722-001"></script>
-  <script src="./assets/js/store.js?v=20260722-001"></script>
-  <script src="./assets/js/analytics.js?v=20260722-001"></script>
-  <script src="./assets/js/charts.js?v=20260722-001"></script>
-  <script src="./assets/js/ui.js?v=20260722-001"></script>
-  <script src="./assets/js/app.js?v=20260722-001"></script>
+  <script src="./assets/js/data.js?v=20260722-002"></script>
+  <script src="./assets/js/store.js?v=20260722-002"></script>
+  <script src="./assets/js/analytics.js?v=20260722-002"></script>
+  <script src="./assets/js/charts.js?v=20260722-002"></script>
+  <script src="./assets/js/ui.js?v=20260722-002"></script>
+  <script src="./assets/js/app.js?v=20260722-002"></script>
 </body>
 </html>

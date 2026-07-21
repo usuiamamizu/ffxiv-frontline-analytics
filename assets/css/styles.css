@@ -368,7 +368,8 @@ button, .import-button {
   min-height: 220px;
   overflow: hidden;
 }
-.job-usage-panel {
+.job-usage-panel,
+.role-usage-panel {
   min-width: 0;
 }
 .job-usage-layout {
@@ -844,7 +845,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-001") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-002") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
