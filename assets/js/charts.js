@@ -34,6 +34,17 @@ const Charts = {
       start += angle;
     }
 
+    if (options.icons) {
+      drawDonutIcons(ctx, segments, {
+        cx,
+        cy,
+        radius,
+        ringWidth,
+        total,
+        startAngle: -Math.PI / 2
+      });
+    }
+
     if (centerText) {
       ctx.fillStyle = "#ffd36b";
       ctx.font = `700 ${Math.max(16, Math.min(22, radius * .32))}px Georgia`;
@@ -132,6 +143,39 @@ const Charts = {
     });
   }
 };
+
+function drawDonutIcons(ctx, segments, geometry) {
+  const { cx, cy, radius, ringWidth, total } = geometry;
+  const iconSize = Math.max(22, Math.min(34, ringWidth * 1.12));
+  let start = geometry.startAngle;
+
+  segments.forEach(item => {
+    const angle = (item.value / total) * Math.PI * 2;
+    if (angle <= 0) return;
+
+    const mid = start + angle / 2;
+    start += angle;
+    if (!item.icon || angle < 0.26) return;
+
+    const x = cx + Math.cos(mid) * radius;
+    const y = cy + Math.sin(mid) * radius;
+    const image = new Image();
+    image.onload = () => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, iconSize / 2 + 4, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(5, 12, 13, .86)";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(243, 217, 155, .78)";
+      ctx.stroke();
+      ctx.clip();
+      ctx.drawImage(image, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+      ctx.restore();
+    };
+    image.src = item.icon;
+  });
+}
 
 function setupCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;

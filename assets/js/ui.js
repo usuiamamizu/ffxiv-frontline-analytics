@@ -127,7 +127,7 @@ const UI = {
     this.roleUsageList(roleSegments);
 
     const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
-    Charts.drawDonut(document.querySelector("#jobChart"), jobSegments, "Top 5", { legend: false });
+    Charts.drawDonut(document.querySelector("#jobChart"), jobSegments, "Top 5", { legend: false, icons: true });
     this.jobUsageList(jobSegments);
 
     const allJobChart = document.querySelector("#allJobChart");
@@ -159,7 +159,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-002";
+const ASSET_VERSION = "20260722-003";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -192,7 +192,8 @@ function buildJobUsageSegments(stats, totalMatches) {
     label: jobName(job.id),
     value: job.matches,
     rate: totalMatches ? job.matches / totalMatches : 0,
-    color: JOB_COLORS[index]
+    color: JOB_COLORS[index],
+    icon: jobIconSource(job.id)
   }));
   const otherCount = stats.slice(5).reduce((sum, job) => sum + job.matches, 0);
   if (otherCount > 0) {
@@ -244,6 +245,10 @@ function jobIcon(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
   if (!job?.icon) return `<span class="job-icon" title="${id}">${id.slice(0, 2)}</span>`;
   return `<span class="job-icon" title="${job.name}"><img src="./assets/job-icons/${job.icon}?v=${ASSET_VERSION}" alt="${job.name}"></span>`;
+}
+function jobIconSource(id) {
+  const job = FFXIV_DATA.jobs.find(item => item.id === id);
+  return job?.icon ? `./assets/job-icons/${job.icon}?v=${ASSET_VERSION}` : "";
 }
 function jobSprite(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
