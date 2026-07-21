@@ -162,14 +162,6 @@ function drawDonutIcons(ctx, segments, geometry) {
     const image = new Image();
     image.onload = () => {
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y, iconSize / 2 + 4, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(5, 12, 13, .86)";
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(243, 217, 155, .78)";
-      ctx.stroke();
-      ctx.clip();
       ctx.drawImage(image, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
       ctx.restore();
     };
