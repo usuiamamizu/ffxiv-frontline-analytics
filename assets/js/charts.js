@@ -146,7 +146,7 @@ const Charts = {
 
 function drawDonutIcons(ctx, segments, geometry) {
   const { cx, cy, radius, ringWidth, total } = geometry;
-  const iconSize = Math.max(22, Math.min(34, ringWidth * 1.12));
+  const iconSize = Math.max(26, Math.min(41, ringWidth * 1.34));
   let start = geometry.startAngle;
 
   segments.forEach(item => {
