@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #01070a;
   --panel: #03131a;
   --panel-2: #071c24;
@@ -17,6 +18,10 @@
 
 * { box-sizing: border-box; }
 html, body { min-height: 100%; overflow-x: hidden; }
+html {
+  background: var(--bg);
+  forced-color-adjust: none;
+}
 body {
   margin: 0;
   color: var(--text);
@@ -27,6 +32,12 @@ body {
     radial-gradient(circle at 50% 0%, rgba(28, 78, 92, .35), transparent 520px),
     var(--bg);
   background-size: 28px 28px, 28px 28px, auto, auto;
+  forced-color-adjust: none;
+}
+
+img,
+canvas {
+  forced-color-adjust: none;
 }
 
 button, input, select { font: inherit; }
@@ -515,6 +526,9 @@ th {
   height: 100%;
   display: block;
   object-fit: contain;
+  filter: none;
+  mix-blend-mode: normal;
+  forced-color-adjust: none;
 }
 .gc-name.maelstrom-text { color: #ff4f3c; }
 .gc-name.adders-text { color: #ffd232; }
@@ -830,7 +844,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260707-2030") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-001") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -967,6 +981,8 @@ tbody tr:hover td {
   border-radius: 4px;
   background: rgba(0, 0, 0, .62);
   box-shadow: inset 0 0 0 1px rgba(255, 218, 137, .08);
+  isolation: isolate;
+  forced-color-adjust: none;
 }
 
 .job-sprite img {
@@ -974,6 +990,9 @@ tbody tr:hover td {
   height: 100%;
   display: block;
   object-fit: contain;
+  filter: none;
+  mix-blend-mode: normal;
+  forced-color-adjust: none;
   image-rendering: pixelated;
 }
 
