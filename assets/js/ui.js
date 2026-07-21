@@ -127,6 +127,7 @@ const UI = {
           </section>
         </div>
       </section>
+      ${roleAnalysis(matches)}
       ${statCards(jobStats, true, false)}
     `;
     document.querySelector("#mapsDetail").innerHTML = statTable(Analytics.mapStats(matches), false, false);
@@ -170,7 +171,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-007";
+const ASSET_VERSION = "20260722-008";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -196,6 +197,62 @@ function buildRoleUsageSegments(matches) {
       color: role.color
     };
   });
+}
+
+function roleAnalysis(matches) {
+  const totalMatches = matches.length;
+  const roles = ROLE_DEFS.map(role => {
+    const roleMatches = matches.filter(match => role.jobs.includes(match.job));
+    const jobRows = role.jobs.map(jobId => {
+      const value = roleMatches.filter(match => match.job === jobId).length;
+      return {
+        id: jobId,
+        label: jobName(jobId),
+        icon: jobIconSource(jobId),
+        value,
+        rate: roleMatches.length ? value / roleMatches.length : 0
+      };
+    }).sort((a, b) => b.value - a.value);
+    return {
+      ...role,
+      value: roleMatches.length,
+      rate: totalMatches ? roleMatches.length / totalMatches : 0,
+      jobs: jobRows
+    };
+  });
+
+  return `
+    <h3 class="analysis-section-title">ロール使用率 <small>全試合比</small></h3>
+    <section class="role-usage-overview">
+      ${roles.map(role => `
+        <div class="role-overview-row" style="--role-color:${role.color};--usage-width:${role.rate * 100}%">
+          <span class="role-overview-name"><i></i>${role.label}</span>
+          <span class="role-usage-bar"><i></i></span>
+          <span class="role-usage-count">${role.value}戦</span>
+          <strong>${formatPercent(role.rate)}</strong>
+        </div>
+      `).join("")}
+    </section>
+    <h3 class="analysis-section-title">ロール別ジョブ使用率 <small>各ロール内の割合</small></h3>
+    <section class="role-job-grid">
+      ${roles.map(role => `
+        <article class="role-job-panel" style="--role-color:${role.color}">
+          <h4><span><i></i>${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
+          <div class="role-job-list">
+            ${role.jobs.map(job => `
+              <div class="role-job-row${job.value === 0 ? " is-unused" : ""}" style="--usage-width:${job.rate * 100}%">
+                <span class="role-job-icon"><img src="${job.icon}" alt=""></span>
+                <span class="role-job-name">${job.label}</span>
+                <span class="role-usage-bar"><i></i></span>
+                <span class="role-job-count">${job.value}戦</span>
+                <strong>${formatPercent(job.rate)}</strong>
+              </div>
+            `).join("")}
+          </div>
+        </article>
+      `).join("")}
+    </section>
+  `;
 }
 
 function buildJobUsageSegments(stats, totalMatches) {

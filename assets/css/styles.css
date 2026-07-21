@@ -429,6 +429,13 @@ button, .import-button {
   font-weight: 700;
   letter-spacing: .04em;
 }
+.analysis-section-title small {
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
 .full-job-chart {
   min-height: 480px;
   border: 1px solid rgba(140,95,28,.6);
@@ -560,6 +567,134 @@ button, .import-button {
   padding: 18px 10px;
   color: var(--muted);
   text-align: center;
+}
+.role-usage-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 14px 14px;
+  padding: 10px;
+  border: 1px solid rgba(140,95,28,.52);
+  background: rgba(1, 9, 12, .2);
+}
+.role-overview-row {
+  display: grid;
+  grid-template-columns: minmax(86px, 118px) minmax(70px, 1fr) 44px 54px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 5px 8px;
+  border: 1px solid rgba(140,95,28,.42);
+  background: rgba(0, 0, 0, .2);
+}
+.role-overview-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+  color: #f3d99b;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.role-overview-name i,
+.role-job-panel h4 span i {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  background: var(--role-color);
+}
+.role-usage-bar {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(196,139,48,.45);
+  background: rgba(0, 0, 0, .48);
+}
+.role-usage-bar i {
+  display: block;
+  width: var(--usage-width);
+  height: 100%;
+  background: var(--role-color);
+}
+.role-usage-count,
+.role-overview-row strong,
+.role-job-count,
+.role-job-row strong {
+  color: var(--gold-bright);
+  text-align: right;
+  white-space: nowrap;
+}
+.role-job-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 8px 14px 14px;
+}
+.role-job-panel {
+  min-width: 0;
+  border: 1px solid rgba(140,95,28,.52);
+  background: rgba(1, 9, 12, .2);
+}
+.role-job-panel h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(140,95,28,.42);
+  color: var(--gold-bright);
+  background: rgba(31, 27, 18, .45);
+  font-size: 14px;
+}
+.role-job-panel h4 span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.role-job-panel h4 small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.role-job-list {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+}
+.role-job-row {
+  display: grid;
+  grid-template-columns: 34px minmax(82px, 120px) minmax(58px, 1fr) 42px 50px;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 3px 7px;
+  border: 1px solid rgba(140,95,28,.38);
+  background: rgba(0, 0, 0, .18);
+}
+.role-job-row.is-unused {
+  opacity: .4;
+}
+.role-job-icon,
+.role-job-icon img {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+.role-job-icon img {
+  object-fit: contain;
+}
+.role-job-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #f3d99b;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 canvas {
   display: block;
@@ -944,7 +1079,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-007") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-008") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1556,6 +1691,7 @@ tbody tr:hover td {
   .full-job-usage { grid-template-columns: 1fr; }
   .full-job-chart { min-height: 390px; }
   .analysis-two-column { grid-template-columns: 1fr; }
+  .role-job-grid { grid-template-columns: 1fr; }
   .ocr-panel { grid-template-columns: 1fr 1fr; }
   .ocr-raw { grid-column: 1 / -1; }
 }
@@ -1573,6 +1709,7 @@ tbody tr:hover td {
   .job-usage-layout { grid-template-columns: 1fr; }
   .usage-list { padding: 0 10px; }
   .full-job-legend { grid-template-columns: 1fr; }
+  .role-usage-overview { grid-template-columns: 1fr; }
   .job-top-row {
     grid-template-columns: 26px 34px minmax(0, 1fr) 44px 50px;
   }
