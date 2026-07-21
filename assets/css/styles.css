@@ -417,7 +417,7 @@ button, .import-button {
   grid-template-columns: minmax(300px, 430px) minmax(420px, 1fr);
   gap: 14px;
   padding: 8px 14px 14px;
-  min-height: 430px;
+  min-height: 500px;
 }
 .analysis-section-title {
   margin: 14px 14px 0;
@@ -430,15 +430,36 @@ button, .import-button {
   letter-spacing: .04em;
 }
 .full-job-chart {
-  min-height: 390px;
+  min-height: 480px;
   border: 1px solid rgba(140,95,28,.6);
   background: rgba(1, 9, 12, .28);
+}
+.full-job-insights {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+.full-job-panel {
+  min-width: 0;
+  border: 1px solid rgba(140,95,28,.52);
+  background: rgba(1, 9, 12, .2);
+}
+.full-job-panel h4 {
+  margin: 0;
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(140,95,28,.42);
+  color: var(--gold-bright);
+  background: rgba(31, 27, 18, .45);
+  font-size: 14px;
+  letter-spacing: .04em;
 }
 .full-job-legend {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr));
   align-content: start;
   gap: 6px;
+  padding: 8px;
   min-width: 0;
 }
 .full-job-row {
@@ -456,11 +477,89 @@ button, .import-button {
 .full-job-row .usage-name {
   font-weight: 700;
 }
+.full-job-row.is-unused {
+  opacity: .4;
+  background: rgba(0, 0, 0, .08);
+}
+.full-job-row.is-unused .usage-swatch {
+  filter: grayscale(1);
+}
 .full-job-count,
 .full-job-rate {
   color: var(--gold-bright);
   text-align: right;
   white-space: nowrap;
+}
+.job-top-five-list {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+}
+.job-top-row {
+  display: grid;
+  grid-template-columns: 28px 38px minmax(88px, 140px) minmax(90px, 1fr) 44px 52px;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 4px 7px;
+  border: 1px solid rgba(140,95,28,.42);
+  background: rgba(0, 0, 0, .2);
+  color: #f3d99b;
+}
+.job-top-rank {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #9f7631;
+  color: #1a1004;
+  background: #d8a33a;
+  font-weight: 900;
+}
+.job-top-row:nth-child(n+4) .job-top-rank {
+  color: #f3d99b;
+  background: #4b4030;
+}
+.job-top-icon,
+.job-top-icon img {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+.job-top-icon img {
+  object-fit: contain;
+}
+.job-top-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.job-top-bar {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(196,139,48,.48);
+  background: rgba(0, 0, 0, .45);
+}
+.job-top-bar i {
+  display: block;
+  width: var(--usage-width);
+  height: 100%;
+  background: #c58e31;
+}
+.job-top-count,
+.job-top-row strong {
+  color: var(--gold-bright);
+  text-align: right;
+  white-space: nowrap;
+}
+.job-top-empty {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--muted);
+  text-align: center;
 }
 canvas {
   display: block;
@@ -845,7 +944,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-006") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-007") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1455,7 +1554,7 @@ tbody tr:hover td {
   .summary-panel { grid-column: 1 / -1; grid-row: auto; }
   .bottom-grid { grid-template-columns: 1fr; }
   .full-job-usage { grid-template-columns: 1fr; }
-  .full-job-chart { min-height: 360px; }
+  .full-job-chart { min-height: 390px; }
   .analysis-two-column { grid-template-columns: 1fr; }
   .ocr-panel { grid-template-columns: 1fr 1fr; }
   .ocr-raw { grid-column: 1 / -1; }
@@ -1474,6 +1573,13 @@ tbody tr:hover td {
   .job-usage-layout { grid-template-columns: 1fr; }
   .usage-list { padding: 0 10px; }
   .full-job-legend { grid-template-columns: 1fr; }
+  .job-top-row {
+    grid-template-columns: 26px 34px minmax(0, 1fr) 44px 50px;
+  }
+  .job-top-bar {
+    grid-column: 3 / -1;
+    grid-row: 2;
+  }
   .analysis-page { padding: 8px; }
   .analysis-summary-grid,
   .analysis-average-grid,

@@ -108,13 +108,24 @@ const UI = {
   },
   detailViews(matches, summary) {
     const jobStats = Analytics.jobStats(matches);
-    const allJobSegments = buildAllJobUsageSegments(jobStats, matches.length);
+    const allJobSegments = buildAllJobUsageSegments(jobStats, matches.length, true);
+    const usedJobSegments = allJobSegments.filter(job => job.value > 0);
+    const topJobSegments = [...usedJobSegments].sort((a, b) => b.value - a.value).slice(0, 5);
     document.querySelector("#summaryDetail").innerHTML = summaryAnalysis(matches, summary);
     document.querySelector("#jobsDetail").innerHTML = `
       <h3 class="analysis-section-title">ジョブ使用率</h3>
       <section class="full-job-usage">
         <canvas id="allJobChart" class="full-job-chart" height="390"></canvas>
-        <div id="allJobLegend" class="full-job-legend">${fullJobLegend(allJobSegments)}</div>
+        <div class="full-job-insights">
+          <section class="full-job-panel">
+            <h4>全ジョブ使用状況</h4>
+            <div id="allJobLegend" class="full-job-legend">${fullJobLegend(allJobSegments)}</div>
+          </section>
+          <section class="full-job-panel job-top-five">
+            <h4>使用回数 TOP5</h4>
+            <div class="job-top-five-list">${jobTopFive(topJobSegments)}</div>
+          </section>
+        </div>
       </section>
       ${statCards(jobStats, true, false)}
     `;
@@ -132,7 +143,7 @@ const UI = {
 
     const allJobChart = document.querySelector("#allJobChart");
     if (allJobChart && allJobChart.getBoundingClientRect().width > 0) {
-      Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "Used Jobs", { legend: false, icons: true });
+      Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "", { legend: false, icons: true });
     }
 
     const latest = Analytics.latest(matches).reverse();
@@ -159,7 +170,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-006";
+const ASSET_VERSION = "20260722-007";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -207,28 +218,45 @@ function buildJobUsageSegments(stats, totalMatches) {
   return top;
 }
 
-function buildAllJobUsageSegments(stats, totalMatches) {
+function buildAllJobUsageSegments(stats, totalMatches, includeUnused = false) {
   const statMap = new Map(stats.map(stat => [stat.id, stat]));
-  return FFXIV_DATA.jobs.map((job, index) => {
+  const segments = FFXIV_DATA.jobs.map((job, index) => {
     const stat = statMap.get(job.id);
     const value = stat ? stat.matches : 0;
     return {
+      id: job.id,
       label: job.name,
       value,
       rate: totalMatches ? value / totalMatches : 0,
       color: JOB_COLORS[index % JOB_COLORS.length],
       icon: jobIconSource(job.id)
     };
-  }).filter(job => job.value > 0);
+  });
+  return includeUnused ? segments : segments.filter(job => job.value > 0);
 }
 
 function fullJobLegend(segments) {
   return segments.map(segment => `
-    <div class="full-job-row" title="${segment.label}">
+    <div class="full-job-row${segment.value === 0 ? " is-unused" : ""}" title="${segment.label}">
       <span class="usage-swatch" style="background:${segment.color}"></span>
       <span class="usage-name">${segment.label}</span>
       <span class="full-job-count">${segment.value}戦</span>
       <span class="full-job-rate">${formatPercent(segment.rate)}</span>
+    </div>
+  `).join("");
+}
+
+function jobTopFive(segments) {
+  if (!segments.length) return `<p class="job-top-empty">戦績データがありません</p>`;
+  const max = Math.max(...segments.map(segment => segment.value), 1);
+  return segments.map((segment, index) => `
+    <div class="job-top-row">
+      <span class="job-top-rank">${index + 1}</span>
+      <span class="job-top-icon"><img src="${segment.icon}" alt=""></span>
+      <span class="job-top-name">${segment.label}</span>
+      <span class="job-top-bar"><i style="--usage-width:${segment.value / max * 100}%"></i></span>
+      <span class="job-top-count">${segment.value}戦</span>
+      <strong>${formatPercent(segment.rate)}</strong>
     </div>
   `).join("");
 }
