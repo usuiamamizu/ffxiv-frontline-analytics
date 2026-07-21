@@ -132,7 +132,7 @@ const UI = {
 
     const allJobChart = document.querySelector("#allJobChart");
     if (allJobChart && allJobChart.getBoundingClientRect().width > 0) {
-      Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "All Jobs", { legend: false });
+      Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "Used Jobs", { legend: false, icons: true });
     }
 
     const latest = Analytics.latest(matches).reverse();
@@ -159,7 +159,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-005";
+const ASSET_VERSION = "20260722-006";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -216,9 +216,10 @@ function buildAllJobUsageSegments(stats, totalMatches) {
       label: job.name,
       value,
       rate: totalMatches ? value / totalMatches : 0,
-      color: JOB_COLORS[index % JOB_COLORS.length]
+      color: JOB_COLORS[index % JOB_COLORS.length],
+      icon: jobIconSource(job.id)
     };
-  });
+  }).filter(job => job.value > 0);
 }
 
 function fullJobLegend(segments) {
