@@ -225,7 +225,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-037";
+const ASSET_VERSION = "20260722-038";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [

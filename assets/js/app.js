@@ -139,6 +139,16 @@ const App = {
       const sample = "2026-07-04,20:03,ウォーコー・チーテ (演習戦),不滅隊,3,踊り子,6,0,37,886484,465756,807903,1\n";
       downloadText("ffxiv-frontline-chatgpt-template.csv", header + sample, "text/csv");
     });
+    document.querySelector("#copyChatGptPrompt")?.addEventListener("click", async () => {
+      const prompt = document.querySelector("#chatGptPromptText")?.textContent.trim();
+      const status = document.querySelector("#copyPromptStatus");
+      try {
+        await copyText(prompt);
+        status.textContent = "コピーしました";
+      } catch {
+        status.textContent = "コピーできませんでした。依頼文を選択してコピーしてください。";
+      }
+    });
     document.querySelector("#exportJson").addEventListener("click", () => {
       const matches = this.storageIssues.length ? this.rawMatches : this.state.matches;
       downloadText("ffxiv-frontline-records.json", JSON.stringify({ version: 1, matches }, null, 2), "application/json");
@@ -181,6 +191,24 @@ const App = {
     });
   }
 };
+
+async function copyText(text) {
+  if (!text) throw new Error("コピーする文章がありません。");
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("コピーに失敗しました。");
+}
 
 function parseMatchesCsv(text) {
   const rows = parseCsvRows(text);

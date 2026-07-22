@@ -37,6 +37,11 @@ test("CSV accepts Japanese KO and Down headers", () => {
   const parsed = parseWithHeader(japaneseHeader, row({ kills: 7, deaths: 3, assists: 28 }))[0];
   return parsed.kills === 7 && parsed.deaths === 3 && parsed.assists === 28;
 });
+test("Screenshot guide uses the current CSV format", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  return source.includes("./assets/guide/frontline-result-capture-guide.png")
+    && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage");
+});
 test("CSV rejects impossible dates", () => rejects(row({ date: "2026-02-30" })));
 test("CSV rejects unknown jobs", () => rejects(row({ job: "BLU" })));
 test("CSV rejects negative values", () => rejects(row({ kills: -1 })));

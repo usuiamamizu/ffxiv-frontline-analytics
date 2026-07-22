@@ -1938,6 +1938,161 @@ tbody tr:hover td {
   white-space: nowrap;
 }
 
+.screenshot-import-guide {
+  margin: 12px;
+  border: 1px solid rgba(196, 139, 48, .72);
+  background: linear-gradient(180deg, rgba(6, 25, 32, .82), rgba(1, 10, 14, .72));
+  box-shadow: inset 0 0 0 1px rgba(255, 218, 137, .06);
+}
+
+.guide-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 54px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(196, 139, 48, .48);
+  background: rgba(210, 156, 55, .06);
+}
+
+.guide-section-head h3 {
+  margin: 2px 0 0;
+  color: var(--gold-bright);
+  font-size: var(--font-subsection);
+}
+
+.guide-section-head > span,
+.guide-kicker {
+  color: #cdb476;
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.guide-kicker { letter-spacing: .08em; }
+
+.screenshot-guide-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, .75fr);
+  gap: 14px;
+  padding: 14px;
+}
+
+.screenshot-example {
+  min-width: 0;
+  margin: 0;
+}
+
+.screenshot-example img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(223, 175, 72, .7);
+  background: #02090c;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .32);
+}
+
+.screenshot-example figcaption {
+  padding: 8px 2px 0;
+  color: var(--muted);
+  font-size: var(--font-caption);
+  line-height: 1.6;
+}
+
+.capture-checklist {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(140, 95, 28, .5);
+  background: rgba(0, 0, 0, .2);
+}
+
+.capture-checklist h4 {
+  margin: 0 0 10px;
+  color: #ffe09c;
+  font-size: var(--font-card-title);
+}
+
+.capture-checklist ol {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capture-checklist li {
+  padding: 9px 10px;
+  border-left: 3px solid var(--gold);
+  background: rgba(255, 255, 255, .025);
+}
+
+.capture-checklist li strong,
+.capture-checklist li span {
+  display: block;
+}
+
+.capture-checklist li strong {
+  margin-bottom: 3px;
+  color: var(--gold-bright);
+  font-size: 14px;
+}
+
+.capture-checklist li span,
+.privacy-note,
+.capture-note span {
+  color: #d2c7aa;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.capture-note {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(225, 172, 58, .38);
+  background: rgba(196, 139, 48, .08);
+}
+
+.capture-note strong { color: #ffe09c; }
+.privacy-note { margin: 10px 1px 0; }
+
+.chatgpt-prompt-guide {
+  margin: 0 14px 14px;
+  border: 1px solid rgba(140, 95, 28, .52);
+  background: rgba(0, 0, 0, .18);
+}
+
+.chatgpt-prompt-guide summary {
+  padding: 11px 13px;
+  color: var(--gold-bright);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prompt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(140, 95, 28, .36);
+}
+
+.prompt-toolbar p { margin: 0 auto 0 0; color: var(--muted); }
+.prompt-toolbar span { color: #a9d8a9; font-size: var(--font-caption); }
+
+.chatgpt-prompt-guide pre {
+  max-width: 100%;
+  margin: 0;
+  padding: 14px;
+  border-top: 1px solid rgba(140, 95, 28, .36);
+  color: #e7dcc0;
+  background: rgba(0, 0, 0, .28);
+  font: 13px/1.75 var(--font-ui);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .help-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3369,4 +3524,26 @@ th { font-size: 12px; font-weight: 800; }
   .rank-card { grid-column: auto; }
   .brand-main-title { font-size: 18px; }
   .brand-ja-title { font-size: 12px; }
+}
+
+@media (max-width: 1180px) {
+  .screenshot-guide-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .screenshot-import-guide { margin: 8px; }
+  .guide-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .screenshot-guide-layout { padding: 8px; }
+  .capture-checklist { padding: 10px; }
+  .chatgpt-prompt-guide { margin: 0 8px 8px; }
+  .prompt-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .prompt-toolbar p { margin: 0; }
+  .chatgpt-prompt-guide pre { font-size: 12px; }
 }
