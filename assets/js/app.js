@@ -9,6 +9,7 @@ const App = {
     this.storageIssues = stored.issues;
     this.bindTabs();
     this.bindDataActions();
+    this.bindDataEditor();
     this.bindMatchDetails();
     UI.render(this.state);
     if (this.storageIssues.length) {
@@ -109,6 +110,110 @@ const App = {
     const match = matches[this.matchDetailIndex + offset];
     if (match) this.openMatchDetail(match.id);
   },
+  bindDataEditor() {
+    const dialog = document.querySelector("#dataEditDialog");
+    const form = document.querySelector("#dataEditForm");
+    const records = document.querySelector("#dataRecords");
+    if (!dialog || !form || !records) return;
+    setSelectOptions("#editMap", FFXIV_DATA.maps.map(value => [value, value]));
+    setSelectOptions("#editGrandCompany", FFXIV_DATA.grandCompanies.map(value => [value, value]));
+    setSelectOptions("#editJob", FFXIV_DATA.jobs.map(job => [job.id, job.name]));
+
+    records.addEventListener("click", async event => {
+      const pageButton = event.target.closest?.("[data-data-page]");
+      if (pageButton && !pageButton.disabled) {
+        UI.dataManager(this.state.matches, Number(pageButton.dataset.dataPage));
+        document.querySelector("#dataRecordTitle")?.scrollIntoView({ block: "start" });
+        return;
+      }
+      const editButton = event.target.closest?.("[data-edit-match]");
+      if (editButton) {
+        this.openDataEditor(editButton.dataset.editMatch);
+        return;
+      }
+      const deleteButton = event.target.closest?.("[data-delete-match]");
+      if (!deleteButton) return;
+      const match = this.state.matches.find(item => item.id === deleteButton.dataset.deleteMatch);
+      if (!match || !confirm(`試合No.${match.matchNo}（${match.date} ${jobNameForApp(match.job)}）を削除します。よろしいですか？`)) return;
+      try {
+        await Store.remove(match.id);
+        this.state.matches = this.state.matches.filter(item => item.id !== match.id);
+        this.rawMatches = [...this.state.matches];
+        UI.render(this.state);
+        setCsvStatus(`試合No.${match.matchNo}を削除しました。現在${this.state.matches.length}件です。`);
+      } catch (error) {
+        setCsvStatus(error.message || "戦績データを削除できませんでした。");
+      }
+    });
+
+    document.addEventListener("click", event => {
+      if (event.target.closest?.("[data-close-data-editor]")) dialog.close();
+    });
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#dataEditStatus");
+      const current = this.state.matches.find(match => match.id === document.querySelector("#editMatchId").value);
+      if (!current) {
+        status.textContent = "編集対象の戦績が見つかりません。";
+        return;
+      }
+      try {
+        const [updated] = normalizeJsonMatches([{
+          ...current,
+          date: document.querySelector("#editDate").value,
+          time: document.querySelector("#editTime").value,
+          map: document.querySelector("#editMap").value,
+          grandCompany: document.querySelector("#editGrandCompany").value,
+          rank: document.querySelector("#editRank").value,
+          job: document.querySelector("#editJob").value,
+          kills: document.querySelector("#editKills").value,
+          deaths: document.querySelector("#editDeaths").value,
+          assists: document.querySelector("#editAssists").value,
+          damage: document.querySelector("#editDamage").value,
+          damageTaken: document.querySelector("#editDamageTaken").value,
+          healing: document.querySelector("#editHealing").value,
+          topDamage: document.querySelector("#editTopDamage").checked
+        }]);
+        const duplicate = this.state.matches.some(match => match.id !== updated.id && matchKey(match) === matchKey(updated));
+        if (duplicate) throw new Error("同じ内容の戦績がすでに登録されています。");
+        const stored = await Store.update(updated);
+        this.state.matches = this.state.matches
+          .map(match => match.id === stored.id ? stored : match)
+          .sort((a, b) => (a.matchNo || 0) - (b.matchNo || 0));
+        this.rawMatches = [...this.state.matches];
+        UI.render(this.state);
+        dialog.close();
+        setCsvStatus(`試合No.${stored.matchNo}を更新しました。`);
+      } catch (error) {
+        status.textContent = error.message || "戦績データを更新できませんでした。";
+      }
+    });
+  },
+  openDataEditor(matchId) {
+    const match = this.state.matches.find(item => item.id === matchId);
+    const dialog = document.querySelector("#dataEditDialog");
+    if (!match || !dialog) return;
+    document.querySelector("#dataEditTitle").textContent = `試合No.${match.matchNo}を編集`;
+    document.querySelector("#editMatchId").value = match.id;
+    document.querySelector("#editDate").value = match.date;
+    document.querySelector("#editTime").value = match.time || "";
+    document.querySelector("#editMap").value = match.map;
+    document.querySelector("#editGrandCompany").value = match.grandCompany;
+    document.querySelector("#editRank").value = String(match.rank);
+    document.querySelector("#editJob").value = match.job;
+    document.querySelector("#editKills").value = match.kills;
+    document.querySelector("#editDeaths").value = match.deaths;
+    document.querySelector("#editAssists").value = match.assists;
+    document.querySelector("#editDamage").value = match.damage;
+    document.querySelector("#editDamageTaken").value = match.damageTaken;
+    document.querySelector("#editHealing").value = match.healing;
+    document.querySelector("#editTopDamage").checked = match.topDamage;
+    document.querySelector("#dataEditStatus").textContent = "";
+    dialog.showModal();
+  },
   bindDataActions() {
     document.querySelector("#importCsv").addEventListener("change", event => {
       const file = event.target.files[0];
@@ -208,6 +313,21 @@ async function copyText(text) {
   const copied = document.execCommand("copy");
   textarea.remove();
   if (!copied) throw new Error("コピーに失敗しました。");
+}
+
+function setSelectOptions(selector, options) {
+  const select = document.querySelector(selector);
+  if (!select) return;
+  select.replaceChildren(...options.map(([value, label]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    return option;
+  }));
+}
+
+function jobNameForApp(jobId) {
+  return FFXIV_DATA.jobs.find(job => job.id === jobId)?.name || jobId;
 }
 
 function parseMatchesCsv(text) {

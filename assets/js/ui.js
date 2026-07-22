@@ -1,4 +1,6 @@
 const UI = {
+  dataPage: 1,
+  dataPageSize: 50,
   render(state) {
     const matches = state.matches;
     const summary = Analytics.summarize(matches);
@@ -11,6 +13,7 @@ const UI = {
     this.bestRecords(Analytics.bests(matches));
     this.streakRecords(matches);
     this.detailViews(matches, summary);
+    this.dataManager(matches);
     this.redrawCharts(state);
   },
   redrawCharts(state) {
@@ -222,10 +225,37 @@ const UI = {
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
       </div>
     `).join("");
+  },
+  dataManager(matches, requestedPage = this.dataPage) {
+    const target = document.querySelector("#dataRecords");
+    if (!target) return;
+    const records = [...matches].sort((a, b) => (b.matchNo || 0) - (a.matchNo || 0));
+    const totalPages = Math.max(1, Math.ceil(records.length / this.dataPageSize));
+    this.dataPage = Math.min(Math.max(1, requestedPage), totalPages);
+    if (!records.length) {
+      target.innerHTML = analysisEmpty("登録済み戦績はありません", "CSVを読み込むと、ここで内容の確認・編集・削除ができます。");
+      return;
+    }
+    const start = (this.dataPage - 1) * this.dataPageSize;
+    const pageRecords = records.slice(start, start + this.dataPageSize);
+    target.innerHTML = `
+      <div class="data-manager-summary">
+        <span><strong>${formatNumber(records.length)}</strong>試合を保存中</span>
+        <small>${start + 1}～${Math.min(start + this.dataPageSize, records.length)}件を表示</small>
+      </div>
+      <div class="data-record-list">
+        ${pageRecords.map(match => dataRecordCard(match)).join("")}
+      </div>
+      <nav class="data-pagination" aria-label="登録済み戦績のページ">
+        <button type="button" data-data-page="${this.dataPage - 1}" ${this.dataPage === 1 ? "disabled" : ""}>← 前へ</button>
+        <span>${this.dataPage} / ${totalPages}ページ</span>
+        <button type="button" data-data-page="${this.dataPage + 1}" ${this.dataPage === totalPages ? "disabled" : ""}>次へ →</button>
+      </nav>
+    `;
   }
 };
 
-const ASSET_VERSION = "20260722-040";
+const ASSET_VERSION = "20260722-041";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -1057,6 +1087,39 @@ function damageSurvivalValue(rows) {
   const totalDowns = rows.reduce((sum, row) => sum + Number(row.deaths || 0), 0);
   const opportunities = rows.length + totalDowns;
   return opportunities ? totalDamageTaken / opportunities : 0;
+}
+
+function dataRecordCard(match) {
+  const id = escapeHtml(match.id);
+  return `
+    <article class="data-record-card" data-record-id="${id}">
+      <header class="data-record-card-head">
+        <div class="data-record-number"><small>No.</small><strong>${match.matchNo || "-"}</strong></div>
+        <div class="data-record-identity">
+          <strong>${escapeHtml(match.date.replaceAll("-", "/"))} ${escapeHtml(match.time || "-")}</strong>
+          <span>${escapeHtml(match.map)}</span>
+        </div>
+        <div class="data-record-tags">
+          <span>${gcName(match.grandCompany)}</span>
+          <span class="rank-badge rank-${match.rank}">${match.rank}位</span>
+          <span>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</span>
+        </div>
+        <div class="data-record-actions">
+          <button type="button" data-edit-match="${id}" aria-label="試合No.${match.matchNo}を編集">編集</button>
+          <button type="button" class="danger" data-delete-match="${id}" aria-label="試合No.${match.matchNo}を削除">削除</button>
+        </div>
+      </header>
+      <dl class="data-record-metrics">
+        <div><dt>KO</dt><dd>${match.kills}</dd></div>
+        <div><dt>Down</dt><dd>${match.deaths}</dd></div>
+        <div><dt>Assist</dt><dd>${match.assists}</dd></div>
+        <div><dt>与ダメージ</dt><dd class="${match.topDamage ? "top-damage-value" : ""}">${formatNumber(match.damage)}</dd></div>
+        <div><dt>被ダメージ</dt><dd>${formatNumber(match.damageTaken)}</dd></div>
+        <div><dt>回復量</dt><dd>${formatNumber(match.healing)}</dd></div>
+        <div><dt>与ダメ1位</dt><dd>${match.topDamage ? "○" : "-"}</dd></div>
+      </dl>
+    </article>
+  `;
 }
 
 function recentHistory(matches) {

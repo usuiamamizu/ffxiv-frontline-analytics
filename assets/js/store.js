@@ -54,6 +54,34 @@ const Store = {
     return prepared;
   },
 
+  async update(match) {
+    const [prepared] = prepareMatches([match]);
+    if (!prepared) throw new Error("更新する戦績データがありません。");
+    if (this.mode === "localstorage") {
+      const current = this.loadLegacy();
+      const index = current.findIndex(item => item.id === prepared.id);
+      if (index < 0) throw new Error("更新する戦績データが見つかりません。");
+      current[index] = prepared;
+      this.saveLegacy(current);
+      return prepared;
+    }
+    await writeMatches(this.db, [prepared], false);
+    return prepared;
+  },
+
+  async remove(id) {
+    if (this.mode === "localstorage") {
+      const current = this.loadLegacy();
+      const next = current.filter(match => match.id !== id);
+      if (next.length === current.length) throw new Error("削除する戦績データが見つかりません。");
+      this.saveLegacy(next);
+      return;
+    }
+    const transaction = this.db.transaction(MATCH_STORE, "readwrite");
+    transaction.objectStore(MATCH_STORE).delete(id);
+    await transactionDone(transaction);
+  },
+
   async clear() {
     if (this.mode === "localstorage") {
       localStorage.removeItem(STORAGE_KEY);

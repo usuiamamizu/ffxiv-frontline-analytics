@@ -14,7 +14,7 @@ vm.createContext(context);
 runScript("assets/js/data.js", "this.testData = FFXIV_DATA;");
 runScript("assets/js/analytics.js", "this.testAnalytics = Analytics;");
 runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches };");
-runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis, buildRoleUsageSegments, roleBadge };");
+runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis, buildRoleUsageSegments, roleBadge, dataRecordCard };");
 
 const header = "Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage";
 const legacyHeader = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage";
@@ -45,6 +45,22 @@ test("Screenshot guide uses the current CSV format", () => {
     && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊")
     && source.includes("KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う")
     && !source.match(/id="chatGptPromptText"[\s\S]*?MatchNo列は作らない/);
+});
+test("Registered match cards provide edit and delete actions", () => {
+  const html = context.testUi.dataRecordCard(match());
+  return html.includes('data-edit-match="test-1"')
+    && html.includes('data-delete-match="test-1"')
+    && html.includes("与ダメージ");
+});
+test("Registered match manager paginates large datasets", () => {
+  const source = fs.readFileSync("assets/js/ui.js", "utf8");
+  return /dataPageSize:\s*50/.test(source)
+    && /records\.slice\(start, start \+ this\.dataPageSize\)/.test(source);
+});
+test("Store updates and removes individual records", () => {
+  const source = fs.readFileSync("assets/js/store.js", "utf8");
+  return /async update\(match\)/.test(source) && /async remove\(id\)/.test(source)
+    && /objectStore\(MATCH_STORE\)\.delete\(id\)/.test(source);
 });
 test("CSV rejects impossible dates", () => rejects(row({ date: "2026-02-30" })));
 test("CSV rejects unknown jobs", () => rejects(row({ job: "BLU" })));
