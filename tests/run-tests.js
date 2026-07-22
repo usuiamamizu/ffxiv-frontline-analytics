@@ -75,6 +75,14 @@ test("Role stacked bar includes role icons", () => {
   const source = fs.readFileSync("assets/js/ui.js", "utf8");
   return /role-stacked-segment[\s\S]*?roleIcon\(role\.id\)/.test(source);
 });
+test("Small role segments move icons outside the donut", () => {
+  const segments = context.testUi.buildRoleUsageSegments([
+    match({ job: "WAR" }),
+    ...Array.from({ length: 19 }, (_, index) => match({ id: `dps-${index}`, job: "SMN" }))
+  ]);
+  return segments.find(segment => segment.id === "tank")?.externalIcon === true
+    && segments.find(segment => segment.id === "ranged")?.externalIcon === false;
+});
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));
 const failed = results.filter(result => !result.ok);

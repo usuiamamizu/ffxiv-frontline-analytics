@@ -225,7 +225,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-032";
+const ASSET_VERSION = "20260722-034";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -252,7 +252,8 @@ function buildRoleUsageSegments(matches) {
       rate: value / total,
       color: role.color,
       icon: roleIconSource(role),
-      badge: roleBadge(role.id)
+      badge: roleBadge(role.id),
+      externalIcon: value > 0 && value / total < .08
     };
   });
 }

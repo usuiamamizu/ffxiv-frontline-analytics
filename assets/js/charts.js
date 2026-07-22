@@ -41,6 +41,8 @@ const Charts = {
         radius,
         ringWidth,
         total,
+        chartWidth,
+        chartHeight,
         startAngle: -Math.PI / 2
       });
     }
@@ -267,7 +269,7 @@ const Charts = {
 };
 
 function drawDonutIcons(ctx, segments, geometry) {
-  const { cx, cy, radius, ringWidth, total } = geometry;
+  const { cx, cy, radius, ringWidth, total, chartWidth, chartHeight } = geometry;
   const iconSize = Math.max(26, Math.min(41, ringWidth * 1.34));
   let start = geometry.startAngle;
 
@@ -279,17 +281,51 @@ function drawDonutIcons(ctx, segments, geometry) {
     start += angle;
     if (!item.icon || angle < 0.26) return;
 
-    const x = cx + Math.cos(mid) * radius;
-    const y = cy + Math.sin(mid) * radius;
+    const iconRadius = item.externalIcon ? radius + ringWidth * .9 + iconSize * .52 : radius;
+    const margin = iconSize / 2 + 2;
+    const rawX = cx + Math.cos(mid) * iconRadius;
+    const rawY = cy + Math.sin(mid) * iconRadius;
+    const x = Math.max(margin, Math.min(chartWidth - margin, rawX));
+    const y = Math.max(margin, Math.min(chartHeight - margin, rawY));
     const image = new Image();
     image.onload = () => {
       ctx.save();
+      if (item.externalIcon) {
+        drawDonutIconLeader(ctx, {
+          cx,
+          cy,
+          radius,
+          ringWidth,
+          angle: mid,
+          x,
+          y,
+          iconSize,
+          color: item.color
+        });
+      }
       ctx.drawImage(image, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
       if (item.badge) drawDonutIconBadge(ctx, x, y, iconSize, item.badge);
       ctx.restore();
     };
     image.src = item.icon;
   });
+}
+
+function drawDonutIconLeader(ctx, geometry) {
+  const { cx, cy, radius, ringWidth, angle, x, y, iconSize, color } = geometry;
+  const startRadius = radius + ringWidth * .54;
+  const startX = cx + Math.cos(angle) * startRadius;
+  const startY = cy + Math.sin(angle) * startRadius;
+  const dx = x - startX;
+  const dy = y - startY;
+  const distance = Math.hypot(dx, dy) || 1;
+  const stopBeforeIcon = iconSize * .42;
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(x - dx / distance * stopBeforeIcon, y - dy / distance * stopBeforeIcon);
+  ctx.strokeStyle = color || "#d8a33a";
+  ctx.lineWidth = 2;
+  ctx.stroke();
 }
 
 function drawDonutIconBadge(ctx, x, y, iconSize, badge) {
