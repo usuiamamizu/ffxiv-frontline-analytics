@@ -2751,6 +2751,7 @@ tbody tr:hover td {
 :root {
   --font-display: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
   --font-ui: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  --font-numeric: Georgia, "Times New Roman", "Yu Mincho", serif;
   --font-section: 20px;
   --font-subsection: 18px;
   --font-card-title: 16px;
@@ -2828,8 +2829,10 @@ select { font-family: var(--font-ui); font-weight: 700; }
   min-height: 40px;
   padding: 7px 10px;
   border-radius: 4px;
+  font-family: var(--font-display);
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: .015em;
   line-height: 1.25;
   white-space: normal;
 }
@@ -2939,6 +2942,31 @@ button:focus-visible,
   line-height: 1.35;
 }
 .summary-card strong { font-size: clamp(32px, 2.7vw, 42px); }
+.summary-card strong,
+.rank-breakdown b,
+.avg-card strong,
+.analysis-metric strong,
+.analysis-average-card strong,
+.record-item strong,
+.usage-percent,
+.role-usage-count,
+.role-stacked-legend strong,
+.role-job-donut-legend strong,
+.ranking-list > li > strong,
+.job-stat-summary b,
+.stat-card-sub-detail b,
+.map-stat-grid strong,
+.best-record-card > strong,
+.best-ranking-link > strong,
+.record-timeline-row > strong,
+.match-detail-stat strong,
+.comparison-values b,
+.comparison-row > strong,
+.distribution-row strong,
+.distribution-row > b {
+  font-family: var(--font-numeric);
+  font-variant-numeric: lining-nums tabular-nums;
+}
 .summary-card small,
 .analysis-metric small,
 .map-highlight small {

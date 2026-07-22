@@ -47,7 +47,7 @@ const Charts = {
 
     if (centerText) {
       ctx.fillStyle = "#ffd36b";
-      ctx.font = `800 ${Math.max(16, Math.min(22, radius * .32))}px "Yu Gothic UI", Meiryo, sans-serif`;
+      ctx.font = `700 ${Math.max(16, Math.min(22, radius * .32))}px Georgia`;
       ctx.textAlign = "center";
       ctx.fillText(centerText, cx, cy + 8);
     }
@@ -109,7 +109,7 @@ const Charts = {
       ctx.fillStyle = "#b9ad92";
       ctx.fillRect(x, height - pad - h, Math.max(4, barWidth), h);
       ctx.fillStyle = "#f3d99b";
-      ctx.font = "700 13px \"Yu Gothic UI\", Meiryo, sans-serif";
+      ctx.font = "11px Georgia";
       ctx.textAlign = "center";
       if (barWidth > 18) ctx.fillText(compactNumber(value), x + barWidth / 2, height - pad - h - 5);
     });
@@ -129,7 +129,7 @@ const Charts = {
 
     if (!points.length) {
       ctx.fillStyle = "#9f967f";
-      ctx.font = "700 15px \"Yu Gothic UI\", Meiryo, sans-serif";
+      ctx.font = "14px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("戦績データがありません", width / 2, height / 2);
       return;
@@ -146,12 +146,12 @@ const Charts = {
       ctx.fillStyle = "rgba(69, 155, 96, .07)";
       ctx.fillRect(averageX, pad.top, pad.left + plotWidth - averageX, averageY - pad.top);
       ctx.fillStyle = "rgba(119, 209, 143, .7)";
-      ctx.font = "700 13px \"Yu Gothic UI\", Meiryo, sans-serif";
+      ctx.font = "12px sans-serif";
       ctx.textAlign = "right";
       ctx.fillText("高被ダメージ・低Down", pad.left + plotWidth - 5, pad.top + 16);
     }
 
-    ctx.font = "600 13px \"Yu Gothic UI\", Meiryo, sans-serif";
+    ctx.font = "12px sans-serif";
     for (let i = 0; i <= 4; i += 1) {
       const x = pad.left + i / 4 * plotWidth;
       const y = pad.top + i / 4 * plotHeight;
@@ -199,7 +199,7 @@ const Charts = {
     }
 
     ctx.fillStyle = "#f3d99b";
-    ctx.font = "700 14px \"Yu Gothic UI\", Meiryo, sans-serif";
+    ctx.font = "13px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("平均被ダメージ →", pad.left + plotWidth / 2, height - 10);
     ctx.textAlign = "left";
@@ -217,7 +217,7 @@ const Charts = {
           ctx.fillStyle = "#d8a33a";
           ctx.fillRect(x - 5, y - 5, 10, 10);
         }
-        ctx.font = `800 ${width < 520 ? 10 : 12}px "Yu Gothic UI", Meiryo, sans-serif`;
+        ctx.font = `700 ${width < 520 ? 9 : 11}px sans-serif`;
         ctx.textAlign = "center";
         ctx.lineWidth = 3;
         ctx.strokeStyle = "rgba(0, 8, 12, .9)";
@@ -239,7 +239,7 @@ const Charts = {
 
   legend(ctx, segments, x, y, width) {
     const colWidth = Math.max(110, (width - x * 2) / 2);
-    ctx.font = "700 13px \"Yu Gothic UI\", Meiryo, sans-serif";
+    ctx.font = "12px Georgia";
     ctx.textAlign = "left";
     segments.forEach((item, index) => {
       const lx = x + (index % 2) * colWidth;
@@ -253,7 +253,7 @@ const Charts = {
   },
 
   legendVertical(ctx, segments, x, y) {
-    ctx.font = "700 14px \"Yu Gothic UI\", Meiryo, sans-serif";
+    ctx.font = "13px Georgia";
     ctx.textAlign = "left";
     segments.forEach((item, index) => {
       const ly = y + index * 23;
@@ -306,7 +306,7 @@ function drawGrid(ctx, width, height, pad, min = 0, max = 1, options = {}) {
   ctx.strokeStyle = "rgba(216,163,58,.18)";
   ctx.lineWidth = 1;
   ctx.fillStyle = "#f3d99b";
-  ctx.font = "600 13px \"Yu Gothic UI\", Meiryo, sans-serif";
+  ctx.font = "12px Georgia";
   const ySteps = options.yLabels ? options.yLabels.length - 1 : 3;
   for (let i = 0; i <= ySteps; i += 1) {
     const y = pad + i * ((height - pad * 2) / ySteps);
