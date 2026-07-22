@@ -16,13 +16,27 @@ runScript("assets/js/analytics.js", "this.testAnalytics = Analytics;");
 runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches };");
 runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis, buildRoleUsageSegments, roleBadge };");
 
-const header = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage";
+const header = "Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage";
+const legacyHeader = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage";
+const japaneseHeader = "日付,時間,マップ,所属勢力,順位,ジョブ,ノックアウト,ダウン,アシスト,与ダメ,被ダメ,回復,与ダメ1位";
 const [mapA, mapB] = context.testData.maps;
 const [grandCompany] = context.testData.grandCompanies;
 const results = [];
 
 test("CSV accepts HH:MM", () => parse(row({ time: "9:05" }))[0].time === "09:05");
 test("CSV accepts HH:MM:SS", () => parse(row({ time: "9:05:07" }))[0].time === "09:05:07");
+test("CSV uses KO and Down headers", () => {
+  const parsed = parse(row({ kills: 7, deaths: 3 }))[0];
+  return parsed.kills === 7 && parsed.deaths === 3;
+});
+test("CSV still accepts legacy Kills and Deaths headers", () => {
+  const parsed = parseWithHeader(legacyHeader, row({ kills: 7, deaths: 3 }))[0];
+  return parsed.kills === 7 && parsed.deaths === 3;
+});
+test("CSV accepts Japanese KO and Down headers", () => {
+  const parsed = parseWithHeader(japaneseHeader, row({ kills: 7, deaths: 3, assists: 28 }))[0];
+  return parsed.kills === 7 && parsed.deaths === 3 && parsed.assists === 28;
+});
 test("CSV rejects impossible dates", () => rejects(row({ date: "2026-02-30" })));
 test("CSV rejects unknown jobs", () => rejects(row({ job: "BLU" })));
 test("CSV rejects negative values", () => rejects(row({ kills: -1 })));
@@ -123,7 +137,11 @@ function test(name, assertion) {
 }
 
 function parse(csvRow) {
-  return context.testImport.parseMatchesCsv(`${header}\n${csvRow}\n`);
+  return parseWithHeader(header, csvRow);
+}
+
+function parseWithHeader(csvHeader, csvRow) {
+  return context.testImport.parseMatchesCsv(`${csvHeader}\n${csvRow}\n`);
 }
 
 function rejects(csvRow) {

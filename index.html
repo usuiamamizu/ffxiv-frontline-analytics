@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-036">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-037">
 </head>
 <body>
   <div class="app-shell">
@@ -116,8 +116,8 @@
           </div>
           <div id="csvStatus" class="import-status" role="status" aria-live="polite">初回登録も追加登録も「CSV読み込み」を使用します。登録済みの試合は自動的に除外されます。</div>
           <div class="csv-guide">
-          <p class="muted">CSV列: Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage</p>
-            <p class="muted">日本語ヘッダー（日付、時間、マップ、所属勢力、順位、ジョブ、K、D、A、与ダメ、被ダメ、回復、与ダメ1位）にも対応します。</p>
+          <p class="muted">CSV列: Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage</p>
+            <p class="muted">日本語ヘッダー（日付、時間、マップ、所属勢力、順位、ジョブ、KO、Down、Assist、与ダメ、被ダメ、回復、与ダメ1位）にも対応します。</p>
           </div>
           <p class="muted">データはこのブラウザ内（IndexedDB）に保存され、CSV読み込み時に試合No.を自動採番します。サイトデータの削除や端末変更に備えて、定期的にJSONバックアップを保存してください。</p>
         </article>
@@ -162,11 +162,11 @@
     </div>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260722-036"></script>
-  <script src="./assets/js/store.js?v=20260722-036"></script>
-  <script src="./assets/js/analytics.js?v=20260722-036"></script>
-  <script src="./assets/js/charts.js?v=20260722-036"></script>
-  <script src="./assets/js/ui.js?v=20260722-036"></script>
-  <script src="./assets/js/app.js?v=20260722-036"></script>
+  <script src="./assets/js/data.js?v=20260722-037"></script>
+  <script src="./assets/js/store.js?v=20260722-037"></script>
+  <script src="./assets/js/analytics.js?v=20260722-037"></script>
+  <script src="./assets/js/charts.js?v=20260722-037"></script>
+  <script src="./assets/js/ui.js?v=20260722-037"></script>
+  <script src="./assets/js/app.js?v=20260722-037"></script>
 </body>
 </html>

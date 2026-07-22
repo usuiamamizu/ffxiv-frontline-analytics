@@ -135,7 +135,7 @@ const App = {
       reader.readAsText(file, "utf-8");
     });
     document.querySelector("#downloadCsvTemplate").addEventListener("click", () => {
-      const header = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage\n";
+      const header = "Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage\n";
       const sample = "2026-07-04,20:03,ウォーコー・チーテ (演習戦),不滅隊,3,踊り子,6,0,37,886484,465756,807903,1\n";
       downloadText("ffxiv-frontline-chatgpt-template.csv", header + sample, "text/csv");
     });
@@ -413,13 +413,19 @@ function normalizeHeader(header) {
     ジョブ: "job",
     kills: "kills",
     kill: "kills",
+    knockout: "kills",
+    ko: "kills",
     k: "kills",
+    ノックアウト: "kills",
     deaths: "deaths",
     death: "deaths",
+    down: "deaths",
     d: "deaths",
+    ダウン: "deaths",
     assists: "assists",
     assist: "assists",
     a: "assists",
+    アシスト: "assists",
     damage: "damage",
     与ダメ: "damage",
     与ダメージ: "damage",
