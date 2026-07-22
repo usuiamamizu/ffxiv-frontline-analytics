@@ -119,7 +119,7 @@ const Charts = {
     const ctx = setupCanvas(canvas);
     const { width, height } = canvas.getBoundingClientRect();
     const pad = {
-      left: width < 520 ? 58 : 78,
+      left: width < 520 ? 52 : 68,
       right: width < 520 ? 22 : 38,
       top: 42,
       bottom: 62
@@ -202,11 +202,8 @@ const Charts = {
     ctx.font = "13px sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("平均被ダメージ →", pad.left + plotWidth / 2, height - 10);
-    ctx.save();
-    ctx.translate(15, pad.top + plotHeight / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText("平均Down（上ほど少ない）", 0, 0);
-    ctx.restore();
+    ctx.textAlign = "left";
+    ctx.fillText("平均Down（上ほど少ない）", pad.left, 22);
 
     const iconSize = width < 520 ? 30 : 38;
     points.forEach(point => {
