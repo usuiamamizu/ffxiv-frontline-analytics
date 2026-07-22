@@ -77,11 +77,11 @@ const UI = {
     document.querySelector("#latestRows").innerHTML = matches.map((match, index) => `
       <tr>
         <td data-label="No.">${match.matchNo || matches.length - index}</td>
-        <td data-label="日付">${match.date.replaceAll("-", "/")}</td>
-        <td class="latest-map-cell" data-label="マップ">${match.map}</td>
+        <td data-label="日付">${escapeHtml(match.date.replaceAll("-", "/"))}</td>
+        <td class="latest-map-cell" data-label="マップ">${escapeHtml(match.map)}</td>
         <td data-label="所属勢力">${gcName(match.grandCompany)}</td>
         <td data-label="順位"><span class="rank-badge rank-${match.rank}">${match.rank}位</span></td>
-        <td class="latest-job-cell" data-label="ジョブ">${jobIcon(match.job)}${jobName(match.job)}</td>
+        <td class="latest-job-cell" data-label="ジョブ">${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</td>
         <td data-label="KO">${match.kills}</td>
         <td data-label="Down">${match.deaths}</td>
         <td data-label="Assist">${match.assists}</td>
@@ -195,18 +195,18 @@ const UI = {
   },
   jobUsageList(segments) {
     document.querySelector("#jobUsageList").innerHTML = segments.map(segment => `
-      <div class="usage-row" title="${segment.label}">
+      <div class="usage-row" title="${escapeHtml(segment.label)}">
         <span class="usage-swatch" style="background:${segment.color}"></span>
-        <span class="usage-name">${segment.label}</span>
+        <span class="usage-name">${escapeHtml(segment.label)}</span>
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
       </div>
     `).join("");
   },
   roleUsageList(segments) {
     document.querySelector("#roleUsageList").innerHTML = segments.map(segment => `
-      <div class="usage-row" title="${segment.label}">
+      <div class="usage-row" title="${escapeHtml(segment.label)}">
         <span class="usage-swatch" style="background:${segment.color}"></span>
-        <span class="usage-name">${segment.label}</span>
+        <span class="usage-name">${escapeHtml(segment.label)}</span>
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
       </div>
     `).join("");
@@ -353,7 +353,7 @@ function jobPerformanceRow(stat, index, type) {
   return `
     <li>
       <span class="ranking-order">${index + 1}</span>
-      <span class="ranking-name">${jobIcon(stat.id)}<b>${jobName(stat.id)}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <span class="ranking-name">${jobIcon(stat.id)}<b>${escapeHtml(jobName(stat.id))}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
       <strong>${formatTypedValue(stat.rankingValue, type)}</strong>
       <em>${stat.matches}戦</em>
     </li>
@@ -425,7 +425,7 @@ function survivalIndexRow(point, index) {
   return `
     <li class="survival-index-row">
       <span class="ranking-order">${index + 1}</span>
-      <span class="ranking-name">${jobIcon(point.id)}<b>${point.label}</b>${point.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <span class="ranking-name">${jobIcon(point.id)}<b>${escapeHtml(point.label)}</b>${point.matches < 3 ? `<small>参考値</small>` : ""}</span>
       <strong>指数 ${Math.round(point.survivalIndex)}</strong>
       <em>${point.matches}戦</em>
       <span class="survival-index-detail">被ダメ生存値 ${formatNumber(point.survivalValue)}</span>
@@ -472,9 +472,9 @@ function buildAllJobUsageSegments(stats, totalMatches, includeUnused = false) {
 
 function fullJobLegend(segments) {
   return segments.map(segment => `
-    <div class="full-job-row${segment.value === 0 ? " is-unused" : ""}" title="${segment.label}">
+    <div class="full-job-row${segment.value === 0 ? " is-unused" : ""}" title="${escapeHtml(segment.label)}">
       <span class="usage-swatch" style="background:${segment.color}"></span>
-      <span class="usage-name">${segment.label}</span>
+      <span class="usage-name">${escapeHtml(segment.label)}</span>
       <span class="full-job-count">${segment.value}戦</span>
       <span class="full-job-rate">${formatPercent(segment.rate)}</span>
     </div>
@@ -488,7 +488,7 @@ function jobTopFive(segments) {
     <div class="job-top-row">
       <span class="job-top-rank">${index + 1}</span>
       <span class="job-top-icon"><img src="${segment.icon}" alt=""></span>
-      <span class="job-top-name">${segment.label}</span>
+      <span class="job-top-name">${escapeHtml(segment.label)}</span>
       <span class="job-top-bar"><i style="--usage-width:${segment.value / max * 100}%"></i></span>
       <span class="job-top-count">${segment.value}戦</span>
       <strong>${formatPercent(segment.rate)}</strong>
@@ -507,8 +507,8 @@ function jobName(id) {
 }
 function jobIcon(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
-  if (!job?.icon) return `<span class="job-icon" title="${id}">${id.slice(0, 2)}</span>`;
-  return `<span class="job-icon" title="${job.name}"><img src="./assets/job-icons/${job.icon}?v=${ASSET_VERSION}" alt="${job.name}"></span>`;
+  if (!job?.icon) return `<span class="job-icon" title="${escapeHtml(id)}">${escapeHtml(String(id || "").slice(0, 2))}</span>`;
+  return `<span class="job-icon" title="${escapeHtml(job.name)}"><img src="./assets/job-icons/${encodeURIComponent(job.icon)}?v=${ASSET_VERSION}" alt="${escapeHtml(job.name)}"></span>`;
 }
 function jobIconSource(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
@@ -523,17 +523,17 @@ function jobStatTitle(id) {
   return `
     <div class="job-stat-title">
       ${jobSprite(id)}
-      <span class="job-stat-name">${jobName(id)}</span>
+      <span class="job-stat-name">${escapeHtml(jobName(id))}</span>
     </div>
   `;
 }
 function gcName(name) {
   const cls = name === "黒渦団" ? "maelstrom-text" : name === "双蛇党" ? "adders-text" : "flames-text";
-  return `<span class="gc-name ${cls}">${name}</span>`;
+  return `<span class="gc-name ${cls}">${escapeHtml(name)}</span>`;
 }
 function recordRow(label, match, key) {
   if (!match) return `<div class="record-item"><span>${label}</span><strong>-</strong></div>`;
-  return `<div class="record-item"><span>${label}</span><strong>${formatNumber(match[key])} <small>(${jobName(match.job)})</small></strong></div>`;
+  return `<div class="record-item"><span>${label}</span><strong>${formatNumber(match[key])} <small>(${escapeHtml(jobName(match.job))})</small></strong></div>`;
 }
 function detailCard(label, value) {
   return `<div class="detail-card"><span class="muted">${label}</span><h3>${value}</h3></div>`;
@@ -574,7 +574,7 @@ function statTable(stats, showJob, compact) {
     <th>${showJob ? "ジョブ" : "マップ"}</th><th>試合</th><th>1位</th><th>1位率</th><th>与ダメ1位</th><th>平均与ダメ</th>
   </tr></thead><tbody>
     ${rows.map(stat => `<tr>
-      <td>${showJob ? `${jobIcon(stat.id)}${jobName(stat.id)}` : stat.id}</td>
+      <td>${showJob ? `${jobIcon(stat.id)}${escapeHtml(jobName(stat.id))}` : escapeHtml(stat.id)}</td>
       <td>${stat.matches}</td>
       <td>${stat.firsts}</td>
       <td class="${stat.firsts ? "rank-1" : ""}">${formatPercent(stat.firsts / stat.matches)}</td>
@@ -640,7 +640,7 @@ function mapInsightCard(label, stat, value, note) {
   return `
     <article class="map-insight-card">
       <span>${label}</span>
-      <strong>${stat.id}</strong>
+      <strong>${escapeHtml(stat.id)}</strong>
       <b>${value}</b>
       <small>${note}${stat.matches < 3 ? "・参考値" : ""}</small>
     </article>
@@ -651,7 +651,7 @@ function mapDetailCard(stat) {
   return `
     <article class="map-detail-card">
       <header>
-        <h4>${stat.id}</h4>
+        <h4>${escapeHtml(stat.id)}</h4>
         <span>${stat.matches}戦${stat.matches < 3 ? "・参考値" : ""}</span>
       </header>
       <div class="map-rate-list">
@@ -669,7 +669,7 @@ function mapDetailCard(stat) {
       </div>
       <div class="map-top-jobs">
         <span>使用ジョブ TOP3</span>
-        <div>${stat.topJobs.map(job => `<b>${jobIcon(job.id)}${jobName(job.id)} <small>${job.value}戦</small></b>`).join("") || `<em>データなし</em>`}</div>
+        <div>${stat.topJobs.map(job => `<b>${jobIcon(job.id)}${escapeHtml(jobName(job.id))} <small>${job.value}戦</small></b>`).join("") || `<em>データなし</em>`}</div>
       </div>
     </article>
   `;
@@ -738,9 +738,9 @@ function bestRecordCard(definition, match) {
       <span>${definition.label}</span>
       <strong>${formatBestValue(value, definition.type)}</strong>
       <div class="best-record-context">
-        <b>${jobIcon(match.job)}${jobName(match.job)}</b>
-        <small>${match.date.replaceAll("-", "/")} ${match.time || ""}</small>
-        <small>${match.map}・${match.rank}位</small>
+        <b>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</b>
+        <small>${escapeHtml(match.date.replaceAll("-", "/"))} ${escapeHtml(match.time || "")}</small>
+        <small>${escapeHtml(match.map)}・${match.rank}位</small>
       </div>
     </article>
   `;
@@ -757,9 +757,9 @@ function bestRankingPanel(definition, matches) {
         ${rows.map((match, index) => `
           <li>
             <span>${index + 1}</span>
-            <b>${jobIcon(match.job)}${jobName(match.job)}</b>
+            <b>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</b>
             <strong>${formatBestValue(definition.value(match), definition.type)}</strong>
-            <small>${match.date.replaceAll("-", "/")}・${match.map}</small>
+            <small>${escapeHtml(match.date.replaceAll("-", "/"))}・${escapeHtml(match.map)}</small>
           </li>
         `).join("")}
       </ol>
@@ -782,11 +782,11 @@ function recordProgression(matches, definitions) {
   });
   return events.reverse().slice(0, 16).map(event => `
     <article class="record-timeline-row">
-      <time>${event.match.date.replaceAll("-", "/")}<small>${event.match.time || ""}</small></time>
+      <time>${escapeHtml(event.match.date.replaceAll("-", "/"))}<small>${escapeHtml(event.match.time || "")}</small></time>
       <span>${event.definition.label}</span>
       <strong>${formatBestValue(event.value, event.definition.type)}</strong>
-      <b>${jobIcon(event.match.job)}${jobName(event.match.job)}</b>
-      <small>${event.match.map}・${event.match.rank}位</small>
+      <b>${jobIcon(event.match.job)}${escapeHtml(jobName(event.match.job))}</b>
+      <small>${escapeHtml(event.match.map)}・${event.match.rank}位</small>
     </article>
   `).join("") || `<p class="history-empty">更新履歴がありません</p>`;
 }
@@ -1015,11 +1015,11 @@ function historyRow(match) {
   return `
     <article class="history-row${match.rank === 1 ? " is-first" : ""}">
       <span data-label="No.">${match.matchNo || "-"}</span>
-      <span data-label="日時">${match.date.replaceAll("-", "/")} ${match.time || "-"}</span>
-      <span class="history-map" data-label="マップ">${match.map}</span>
+      <span data-label="日時">${escapeHtml(match.date.replaceAll("-", "/"))} ${escapeHtml(match.time || "-")}</span>
+      <span class="history-map" data-label="マップ">${escapeHtml(match.map)}</span>
       <span data-label="所属">${gcName(match.grandCompany)}</span>
       <span data-label="順位"><span class="rank-badge rank-${match.rank}">${match.rank}位</span></span>
-      <span class="history-job" data-label="ジョブ">${jobIcon(match.job)}${jobName(match.job)}</span>
+      <span class="history-job" data-label="ジョブ">${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</span>
       <span data-label="KO">${match.kills}</span>
       <span data-label="Down">${match.deaths}</span>
       <span data-label="Assist">${match.assists}</span>
@@ -1073,7 +1073,7 @@ function rankingRow(stat, index, type) {
   return `
     <li>
       <span class="ranking-order">${index + 1}</span>
-      <span class="ranking-name">${jobSprite(stat.id)}<b>${jobName(stat.id)}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <span class="ranking-name">${jobSprite(stat.id)}<b>${escapeHtml(jobName(stat.id))}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
       <strong>${formatTypedValue(stat.rankingValue, type)}</strong>
       <em>${stat.matches}戦</em>
     </li>
@@ -1084,7 +1084,7 @@ function mapHighlight(label, stat, type) {
   if (!stat) return `<article class="map-highlight"><span>${label}</span><strong>-</strong><small>データなし</small></article>`;
   const value = type === "firstRate" ? formatPercent(safeRate(stat.firsts, stat.matches)) : formatNumber(stat.avgDamage);
   const note = type === "firstRate" ? `${stat.firsts} / ${stat.matches} 戦` : `${stat.matches}戦の平均`;
-  return `<article class="map-highlight"><span>${label}</span><strong>${stat.id}</strong><small>${value} ・ ${note}</small></article>`;
+  return `<article class="map-highlight"><span>${label}</span><strong>${escapeHtml(stat.id)}</strong><small>${value} ・ ${note}</small></article>`;
 }
 
 function bestMapBy(stats, selector) {
@@ -1119,4 +1119,14 @@ function formatTypedValue(value, type, signed = false) {
   if (type === "percent") return `${Math.round(absValue * 1000) / 10}%`;
   if (type === "number") return formatNumber(absValue);
   return formatDecimal(absValue, 1);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
+  })[character]);
 }
