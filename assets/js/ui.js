@@ -11,7 +11,10 @@ const UI = {
     this.bestRecords(Analytics.bests(matches));
     this.streakRecords(matches);
     this.detailViews(matches, summary);
-    this.charts(matches, summary);
+    this.redrawCharts(state);
+  },
+  redrawCharts(state) {
+    this.charts(state.matches);
   },
   header(matches) {
     const latest = Analytics.latest(matches, 1)[0];
@@ -46,7 +49,7 @@ const UI = {
         </div>
       </article>
       <article class="summary-card">
-        <span class="card-label">勝率（1位獲得率）</span>
+        <span class="card-label">1位率</span>
         <div class="card-body"><strong>${formatPercent(summary.firstRate)}</strong><small>${summary.ranks[1]} / ${summary.total || 0} 試合</small></div>
       </article>
       <article class="summary-card top-damage-summary">
@@ -150,48 +153,56 @@ const UI = {
     document.querySelector("#mapsDetail").innerHTML = mapAnalysis(matches);
     document.querySelector("#bestsDetail").innerHTML = bestAnalysis(matches);
   },
-  charts(matches, summary) {
-    const roleSegments = buildRoleUsageSegments(matches);
-    Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "ロール", { legend: false });
-    this.roleUsageList(roleSegments);
+  charts(matches) {
+    const activePanel = document.querySelector(".tab-panel.active")?.id || "dashboard";
+    if (activePanel === "dashboard") {
+      const roleSegments = buildRoleUsageSegments(matches);
+      Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "ロール", { legend: false });
+      this.roleUsageList(roleSegments);
 
-    const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
-    Charts.drawDonut(document.querySelector("#jobChart"), jobSegments, "Top 5", { legend: false, icons: true });
-    this.jobUsageList(jobSegments);
+      const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
+      Charts.drawDonut(document.querySelector("#jobChart"), jobSegments, "Top 5", { legend: false, icons: true });
+      this.jobUsageList(jobSegments);
 
-    const allJobChart = document.querySelector("#allJobChart");
-    if (allJobChart && allJobChart.getBoundingClientRect().width > 0) {
-      Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "", { legend: false, icons: true });
+      const latest = Analytics.latest(matches).reverse();
+      Charts.drawLine(document.querySelector("#rankTrendChart"), latest.map(match => match.rank), { min: 1, max: 3, invert: true, yLabels: ["1位", "2位", "3位"] });
+      Charts.drawBars(document.querySelector("#damageTrendChart"), latest.map(match => match.damage));
     }
 
-    buildRoleAnalysisData(matches).forEach(role => {
-      const canvas = document.querySelector(`#roleJobChart-${role.id}`);
-      if (canvas && canvas.getBoundingClientRect().width > 0) {
-        Charts.drawDonut(canvas, roleJobDonutSegments(role), "", { legend: false, icons: true });
+    if (activePanel === "jobs") {
+      const jobStats = Analytics.jobStats(matches);
+      const allJobChart = document.querySelector("#allJobChart");
+      if (allJobChart?.getBoundingClientRect().width > 0) {
+        Charts.drawDonut(allJobChart, buildAllJobUsageSegments(jobStats, matches.length), "", { legend: false, icons: true });
       }
-    });
 
-    const survivalScatterChart = document.querySelector("#survivalScatterChart");
-    if (survivalScatterChart && survivalScatterChart.getBoundingClientRect().width > 0) {
-      const survivalMetrics = buildSurvivalMetrics(Analytics.jobStats(matches));
-      Charts.drawScatter(survivalScatterChart, survivalMetrics.points, {
-        averageX: survivalMetrics.averageDamageTaken,
-        averageY: survivalMetrics.averageDowns
+      buildRoleAnalysisData(matches).forEach(role => {
+        const canvas = document.querySelector(`#roleJobChart-${role.id}`);
+        if (canvas?.getBoundingClientRect().width > 0) {
+          Charts.drawDonut(canvas, roleJobDonutSegments(role), "", { legend: false, icons: true });
+        }
       });
+
+      const survivalScatterChart = document.querySelector("#survivalScatterChart");
+      if (survivalScatterChart?.getBoundingClientRect().width > 0) {
+        const survivalMetrics = buildSurvivalMetrics(jobStats);
+        Charts.drawScatter(survivalScatterChart, survivalMetrics.points, {
+          averageX: survivalMetrics.averageDamageTaken,
+          averageY: survivalMetrics.averageDowns
+        });
+      }
     }
 
-    const summaryRankChart = document.querySelector("#summaryRankChart");
-    if (summaryRankChart && summaryRankChart.getBoundingClientRect().width > 0) {
+    if (activePanel === "summary") {
+      const summary = Analytics.summarize(matches);
+      const summaryRankChart = document.querySelector("#summaryRankChart");
+      if (!summaryRankChart?.getBoundingClientRect().width) return;
       Charts.drawDonut(summaryRankChart, [
         { label: "1位", value: summary.ranks[1], color: "#d5a22e" },
         { label: "2位", value: summary.ranks[2], color: "#8c8a7e" },
         { label: "3位", value: summary.ranks[3], color: "#ad3725" }
       ], `${summary.total}戦`, { legend: false });
     }
-
-    const latest = Analytics.latest(matches).reverse();
-    Charts.drawLine(document.querySelector("#rankTrendChart"), latest.map(m => m.rank), { min: 1, max: 3, invert: true, yLabels: ["1位", "2位", "3位"] });
-    Charts.drawBars(document.querySelector("#damageTrendChart"), latest.map(m => m.damage));
   },
   jobUsageList(segments) {
     document.querySelector("#jobUsageList").innerHTML = segments.map(segment => `
@@ -213,7 +224,8 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-022";
+const ASSET_VERSION = "20260722-026";
+const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -587,14 +599,16 @@ function statTable(stats, showJob, compact) {
 function mapAnalysis(matches) {
   if (!matches.length) return analysisEmpty("マップ別分析", "CSVを読み込むと、マップごとの1位率・戦闘傾向・使用ジョブを比較できます。");
   const stats = Analytics.mapStats(matches).map(stat => enrichMapStat(stat, matches));
+  const eligibleStats = stats.filter(stat => stat.matches >= MIN_RANKING_MATCHES);
+  const comparisonStats = eligibleStats.length ? eligibleStats : stats;
   const mostPlayed = bestBy(stats, stat => stat.matches);
-  const bestFirstRate = bestBy(stats, stat => stat.firstRate);
-  const bestDamage = bestBy(stats, stat => stat.avgDamage);
-  const bestSurvival = bestBy(stats, stat => stat.survivalValue);
+  const bestFirstRate = bestBy(comparisonStats, stat => stat.firstRate);
+  const bestDamage = bestBy(comparisonStats, stat => stat.avgDamage);
+  const bestSurvival = bestBy(comparisonStats, stat => stat.survivalValue);
   return `
     <div class="analysis-page map-analysis-page">
       <section class="analysis-block">
-        <h3>マップサマリー <small>全期間の比較</small></h3>
+        <h3>マップサマリー <small>3試合以上のマップを優先</small></h3>
         <div class="map-insight-grid">
           ${mapInsightCard("最多出撃", mostPlayed, `${mostPlayed.matches}戦`, formatPercent(mostPlayed.matches / matches.length))}
           ${mapInsightCard("1位率トップ", bestFirstRate, formatPercent(bestFirstRate.firstRate), `${bestFirstRate.firsts} / ${bestFirstRate.matches}戦`)}
@@ -719,7 +733,7 @@ function bestAnalysis(matches) {
 function bestMetricDefinitions() {
   return [
     { id: "damage", label: "最高与ダメージ", type: "number", value: match => Number(match.damage || 0), showRanking: true },
-    { id: "damageTaken", label: "最大被ダメージ", type: "number", value: match => Number(match.damageTaken || 0), showRanking: false },
+    { id: "damageTaken", label: "最大被ダメージ（参考記録）", type: "number", value: match => Number(match.damageTaken || 0), showRanking: false },
     { id: "healing", label: "最高回復量", type: "number", value: match => Number(match.healing || 0), showRanking: true },
     { id: "kills", label: "最高KO", type: "integer", value: match => Number(match.kills || 0), showRanking: true },
     { id: "assists", label: "最高Assist", type: "integer", value: match => Number(match.assists || 0), showRanking: true },

@@ -17,30 +17,58 @@ const App = {
         ? "戦績データはこのブラウザ内に保存されます。初回登録も追加登録も「CSV読み込み」を使用します。"
         : "IndexedDBを利用できないため、互換保存モードで動作しています。JSONバックアップを定期的に保存してください。");
     }
-    window.addEventListener("resize", debounce(() => UI.render(this.state), 150));
+    window.addEventListener("resize", debounce(() => UI.redrawCharts(this.state), 150));
   },
   bindTabs() {
-    document.querySelectorAll(".tab").forEach(tab => {
+    const tabs = [...document.querySelectorAll(".tab")];
+    tabs.forEach((tab, index) => {
+      const selected = tab.classList.contains("active");
+      if (!tab.id) tab.id = `tab-${tab.dataset.tab}`;
       tab.setAttribute("role", "tab");
-      tab.setAttribute("aria-selected", tab.classList.contains("active") ? "true" : "false");
+      tab.setAttribute("aria-controls", tab.dataset.tab);
+      tab.setAttribute("aria-selected", selected ? "true" : "false");
+      tab.tabIndex = selected ? 0 : -1;
       tab.addEventListener("click", () => this.openTab(tab.dataset.tab));
+      tab.addEventListener("keydown", event => {
+        const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        const nextIndex = event.key === "Home" ? 0
+          : event.key === "End" ? tabs.length - 1
+            : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        this.openTab(tabs[nextIndex].dataset.tab, { focus: true });
+      });
     });
-    document.querySelectorAll(".tab-panel").forEach(panel => panel.setAttribute("role", "tabpanel"));
+    document.querySelectorAll(".tab-panel").forEach(panel => {
+      panel.setAttribute("role", "tabpanel");
+      panel.setAttribute("aria-labelledby", `tab-${panel.id}`);
+      panel.hidden = !panel.classList.contains("active");
+    });
     document.addEventListener("click", event => {
       const trigger = event.target.closest?.("[data-open-tab]");
       if (trigger) this.openTab(trigger.dataset.openTab);
     });
   },
-  openTab(tabId) {
+  openTab(tabId, options = {}) {
     const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
     const panel = document.querySelector(`#${tabId}`);
     if (!tab || !panel) return;
-    document.querySelectorAll(".tab, .tab-panel").forEach(el => el.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach(el => el.setAttribute("aria-selected", "false"));
+    document.querySelectorAll(".tab").forEach(element => {
+      element.classList.remove("active");
+      element.setAttribute("aria-selected", "false");
+      element.tabIndex = -1;
+    });
+    document.querySelectorAll(".tab-panel").forEach(element => {
+      element.classList.remove("active");
+      element.hidden = true;
+    });
     tab.classList.add("active");
     tab.setAttribute("aria-selected", "true");
+    tab.tabIndex = 0;
     panel.classList.add("active");
-    UI.render(this.state);
+    panel.hidden = false;
+    if (options.focus) tab.focus();
+    requestAnimationFrame(() => UI.redrawCharts(this.state));
   },
   bindDataActions() {
     document.querySelector("#importCsv").addEventListener("change", event => {
