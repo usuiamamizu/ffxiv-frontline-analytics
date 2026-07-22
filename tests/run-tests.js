@@ -39,11 +39,14 @@ test("CSV accepts Japanese KO and Down headers", () => {
 });
 test("Screenshot guide uses the current CSV format", () => {
   const source = fs.readFileSync("index.html", "utf8");
+  const prompt = source.match(/id="chatGptPromptText">([\s\S]*?)<\/pre>/)?.[1] || "";
   return source.includes("./assets/guide/frontline-result-capture-guide.png")
     && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage")
     && source.includes("以下の形式でCSVファイルを作成してください")
     && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊")
     && source.includes("KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う")
+    && prompt.includes("この行を自分の戦績として、各項目の数値を読み取る")
+    && !prompt.includes("必ず「総与ダメージ量」でソートされている画像を使う")
     && !source.match(/id="chatGptPromptText"[\s\S]*?MatchNo列は作らない/);
 });
 test("Registered match cards provide edit and delete actions", () => {
