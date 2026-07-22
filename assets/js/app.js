@@ -9,13 +9,26 @@ const App = {
   },
   bindTabs() {
     document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab, .tab-panel").forEach(el => el.classList.remove("active"));
-        tab.classList.add("active");
-        document.querySelector(`#${tab.dataset.tab}`).classList.add("active");
-        UI.render(this.state);
-      });
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-selected", tab.classList.contains("active") ? "true" : "false");
+      tab.addEventListener("click", () => this.openTab(tab.dataset.tab));
     });
+    document.querySelectorAll(".tab-panel").forEach(panel => panel.setAttribute("role", "tabpanel"));
+    document.addEventListener("click", event => {
+      const trigger = event.target.closest?.("[data-open-tab]");
+      if (trigger) this.openTab(trigger.dataset.openTab);
+    });
+  },
+  openTab(tabId) {
+    const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+    const panel = document.querySelector(`#${tabId}`);
+    if (!tab || !panel) return;
+    document.querySelectorAll(".tab, .tab-panel").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(el => el.setAttribute("aria-selected", "false"));
+    tab.classList.add("active");
+    tab.setAttribute("aria-selected", "true");
+    panel.classList.add("active");
+    UI.render(this.state);
   },
   bindDataActions() {
     document.querySelector("#importCsv").addEventListener("change", event => {
@@ -29,9 +42,9 @@ const App = {
           this.state.matches = result.matches;
           Store.save(this.state.matches);
           UI.render(this.state);
-          setCsvStatus(`CSV load complete: ${result.added} added / ${result.skipped} skipped. Total: ${this.state.matches.length}.`);
+          setCsvStatus(`CSV読み込み完了：${result.added}件追加 / ${result.skipped}件重複を除外。合計${this.state.matches.length}件です。`);
         } catch (error) {
-          setCsvStatus(error.message || "CSV import failed.");
+          setCsvStatus(error.message || "CSVの読み込みに失敗しました。");
         } finally {
           event.target.value = "";
         }
@@ -51,10 +64,19 @@ const App = {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = () => {
-        const parsed = JSON.parse(reader.result);
-        this.state.matches = Array.isArray(parsed.matches) ? parsed.matches : parsed;
-        Store.save(this.state.matches);
-        UI.render(this.state);
+        try {
+          const parsed = JSON.parse(reader.result);
+          const matches = Array.isArray(parsed.matches) ? parsed.matches : parsed;
+          if (!Array.isArray(matches)) throw new Error("JSON内に戦績データがありません。");
+          this.state.matches = matches;
+          Store.save(this.state.matches);
+          UI.render(this.state);
+          setCsvStatus(`JSONバックアップから${matches.length}件を復元しました。`);
+        } catch (error) {
+          setCsvStatus(error.message || "JSONバックアップの復元に失敗しました。");
+        } finally {
+          event.target.value = "";
+        }
       };
       reader.readAsText(file);
     });
@@ -62,19 +84,19 @@ const App = {
       if (!confirm("保存済みの全戦績データを削除します。よろしいですか？")) return;
       this.state.matches = Store.clear();
       UI.render(this.state);
-      setCsvStatus("All saved records were deleted.");
+      setCsvStatus("保存済みの戦績データをすべて削除しました。");
     });
   }
 };
 
 function parseMatchesCsv(text) {
   const rows = parseCsvRows(text);
-  if (rows.length < 2) throw new Error("CSV has no data rows.");
+  if (rows.length < 2) throw new Error("CSVに戦績データの行がありません。");
   const headers = rows[0].map(normalizeHeader);
   const imported = rows.slice(1)
     .filter(row => row.some(cell => String(cell || "").trim()))
     .map((row, index) => normalizeCsvMatch(rowToObject(headers, row), index + 2));
-  if (!imported.length) throw new Error("CSV has no importable records.");
+  if (!imported.length) throw new Error("CSVに読み込める戦績データがありません。");
   return imported;
 }
 
@@ -201,7 +223,7 @@ function validateMatch(match, rowNumber) {
     if (!Number.isFinite(match[key])) missing.push(key);
   });
   if (match.rank < 1 || match.rank > 3) missing.push("rank(1-3)");
-  if (missing.length) throw new Error(`CSV row ${rowNumber}: invalid ${missing.join(", ")}`);
+  if (missing.length) throw new Error(`CSVの${rowNumber}行目を確認してください：${missing.join(", ")}`);
 }
 
 function normalizeHeader(header) {

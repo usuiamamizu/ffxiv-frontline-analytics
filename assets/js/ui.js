@@ -3,6 +3,7 @@ const UI = {
     const matches = state.matches;
     const summary = Analytics.summarize(matches);
     this.header(matches);
+    this.dashboardEmpty(matches);
     this.summaryCards(summary);
     this.averageCards(matches);
     this.latestRows(Analytics.latest(matches));
@@ -18,6 +19,13 @@ const UI = {
     const matchNo = document.querySelector("#matchNo");
     if (lastUpdated) lastUpdated.textContent = latest ? latest.date.replaceAll("-", "/") : "-";
     if (matchNo) matchNo.textContent = matches.length;
+  },
+  dashboardEmpty(matches) {
+    const dashboard = document.querySelector("#dashboard");
+    const target = document.querySelector("#dashboardEmpty");
+    const isEmpty = matches.length === 0;
+    dashboard.classList.toggle("is-empty", isEmpty);
+    target.innerHTML = isEmpty ? analysisEmpty("戦績データがありません", "まずデータタブからCSVを読み込んでください。初回登録も、2回目以降の追加登録も同じボタンで行えます。") : "";
   },
   summaryCards(summary) {
     const rankTotal = summary.total || 1;
@@ -62,6 +70,10 @@ const UI = {
     document.querySelector("#ratioStrip").innerHTML = "";
   },
   latestRows(matches) {
+    if (!matches.length) {
+      document.querySelector("#latestRows").innerHTML = `<tr class="latest-empty-row"><td colspan="13">戦績データがありません</td></tr>`;
+      return;
+    }
     document.querySelector("#latestRows").innerHTML = matches.map((match, index) => `
       <tr>
         <td data-label="No.">${match.matchNo || matches.length - index}</td>
@@ -107,8 +119,10 @@ const UI = {
     const allJobSegments = buildAllJobUsageSegments(jobStats, matches.length, true);
     const usedJobSegments = allJobSegments.filter(job => job.value > 0);
     const topJobSegments = [...usedJobSegments].sort((a, b) => b.value - a.value).slice(0, 5);
-    document.querySelector("#summaryDetail").innerHTML = summaryAnalysis(matches, summary);
-    document.querySelector("#jobsDetail").innerHTML = `
+    document.querySelector("#summaryDetail").innerHTML = matches.length
+      ? summaryAnalysis(matches, summary)
+      : analysisEmpty("総集計", "CSVを読み込むと、全期間平均・直近比較・順位分布・与ダメージ分布を確認できます。");
+    document.querySelector("#jobsDetail").innerHTML = matches.length ? `
       <section class="job-analysis-section">
         <h3 class="analysis-section-title">ジョブ使用率</h3>
         <section class="full-job-usage">
@@ -132,13 +146,13 @@ const UI = {
         <h3 class="analysis-section-title">ジョブ別詳細成績</h3>
         ${statCards(jobStats, true, false)}
       </section>
-    `;
-    document.querySelector("#mapsDetail").innerHTML = statTable(Analytics.mapStats(matches), false, false);
-    document.querySelector("#bestsDetail").innerHTML = document.querySelector("#bestRecords").innerHTML;
+    ` : analysisEmpty("ジョブ別分析", "CSVを読み込むと、ロール使用率・ジョブ実績・被ダメ生存指数を比較できます。");
+    document.querySelector("#mapsDetail").innerHTML = mapAnalysis(matches);
+    document.querySelector("#bestsDetail").innerHTML = bestAnalysis(matches);
   },
   charts(matches, summary) {
     const roleSegments = buildRoleUsageSegments(matches);
-    Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "Roles", { legend: false });
+    Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "ロール", { legend: false });
     this.roleUsageList(roleSegments);
 
     const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
@@ -199,7 +213,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-021";
+const ASSET_VERSION = "20260722-022";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -568,6 +582,239 @@ function statTable(stats, showJob, compact) {
       <td>${formatNumber(stat.avgDamage)}</td>
     </tr>`).join("")}
   </tbody></table></div>`;
+}
+
+function mapAnalysis(matches) {
+  if (!matches.length) return analysisEmpty("マップ別分析", "CSVを読み込むと、マップごとの1位率・戦闘傾向・使用ジョブを比較できます。");
+  const stats = Analytics.mapStats(matches).map(stat => enrichMapStat(stat, matches));
+  const mostPlayed = bestBy(stats, stat => stat.matches);
+  const bestFirstRate = bestBy(stats, stat => stat.firstRate);
+  const bestDamage = bestBy(stats, stat => stat.avgDamage);
+  const bestSurvival = bestBy(stats, stat => stat.survivalValue);
+  return `
+    <div class="analysis-page map-analysis-page">
+      <section class="analysis-block">
+        <h3>マップサマリー <small>全期間の比較</small></h3>
+        <div class="map-insight-grid">
+          ${mapInsightCard("最多出撃", mostPlayed, `${mostPlayed.matches}戦`, formatPercent(mostPlayed.matches / matches.length))}
+          ${mapInsightCard("1位率トップ", bestFirstRate, formatPercent(bestFirstRate.firstRate), `${bestFirstRate.firsts} / ${bestFirstRate.matches}戦`)}
+          ${mapInsightCard("平均与ダメージトップ", bestDamage, formatNumber(bestDamage.avgDamage), `${bestDamage.matches}戦の平均`)}
+          ${mapInsightCard("被ダメ生存値トップ", bestSurvival, formatNumber(bestSurvival.survivalValue), `${bestSurvival.matches}戦の集計`)}
+        </div>
+      </section>
+
+      <section class="analysis-block">
+        <h3>マップ別詳細 <small>勝敗・戦闘平均・使用ジョブ</small></h3>
+        <div class="map-detail-grid">
+          ${stats.map(mapDetailCard).join("")}
+        </div>
+        <aside class="map-survival-note">
+          <strong>被ダメ生存値</strong>
+          <code>被ダメージ合計 ÷（試合数 + Down合計）</code>
+          <span>値が高いほど、少ないDownで多くの攻撃を引き受けた目安です。マップごとの交戦量や使用ジョブもあわせて確認してください。</span>
+        </aside>
+      </section>
+    </div>
+  `;
+}
+
+function enrichMapStat(stat, matches) {
+  const rows = matches.filter(match => match.map === stat.id);
+  const jobCounts = new Map();
+  rows.forEach(row => jobCounts.set(row.job, (jobCounts.get(row.job) || 0) + 1));
+  const topJobs = [...jobCounts.entries()]
+    .map(([id, value]) => ({ id, value }))
+    .sort((a, b) => b.value - a.value || jobName(a.id).localeCompare(jobName(b.id), "ja"))
+    .slice(0, 3);
+  return {
+    ...stat,
+    rows,
+    firstRate: safeRate(stat.firsts, stat.matches),
+    topDamageRate: safeRate(stat.topDamage, stat.matches),
+    survivalValue: damageSurvivalValue(rows),
+    topJobs
+  };
+}
+
+function mapInsightCard(label, stat, value, note) {
+  return `
+    <article class="map-insight-card">
+      <span>${label}</span>
+      <strong>${stat.id}</strong>
+      <b>${value}</b>
+      <small>${note}${stat.matches < 3 ? "・参考値" : ""}</small>
+    </article>
+  `;
+}
+
+function mapDetailCard(stat) {
+  return `
+    <article class="map-detail-card">
+      <header>
+        <h4>${stat.id}</h4>
+        <span>${stat.matches}戦${stat.matches < 3 ? "・参考値" : ""}</span>
+      </header>
+      <div class="map-rate-list">
+        ${mapRateRow("1位率", stat.firstRate, `${stat.firsts}戦`)}
+        ${mapRateRow("与ダメ1位率", stat.topDamageRate, `${stat.topDamage}戦`)}
+      </div>
+      <div class="map-stat-grid">
+        ${mapStatCell("平均KO", formatDecimal(stat.avgKills, 1))}
+        ${mapStatCell("平均Down", formatDecimal(stat.avgDeaths, 1))}
+        ${mapStatCell("平均Assist", formatDecimal(stat.avgAssists, 1))}
+        ${mapStatCell("平均与ダメ", formatNumber(stat.avgDamage))}
+        ${mapStatCell("平均被ダメ", formatNumber(stat.avgDamageTaken))}
+        ${mapStatCell("平均回復量", formatNumber(stat.avgHealing))}
+        ${mapStatCell("被ダメ生存値", formatNumber(stat.survivalValue))}
+      </div>
+      <div class="map-top-jobs">
+        <span>使用ジョブ TOP3</span>
+        <div>${stat.topJobs.map(job => `<b>${jobIcon(job.id)}${jobName(job.id)} <small>${job.value}戦</small></b>`).join("") || `<em>データなし</em>`}</div>
+      </div>
+    </article>
+  `;
+}
+
+function mapRateRow(label, rate, countText) {
+  return `
+    <div class="map-rate-row" style="--metric-width:${Math.max(0, Math.min(100, rate * 100))}%">
+      <span>${label}</span><i><b></b></i><strong>${formatPercent(rate)}</strong><small>${countText}</small>
+    </div>
+  `;
+}
+
+function mapStatCell(label, value) {
+  return `<span><small>${label}</small><strong>${value}</strong></span>`;
+}
+
+function bestAnalysis(matches) {
+  if (!matches.length) return analysisEmpty("自己ベスト", "CSVを読み込むと、最高記録・カテゴリ別TOP3・記録更新履歴を確認できます。");
+  const definitions = bestMetricDefinitions();
+  return `
+    <div class="analysis-page best-analysis-page">
+      <section class="analysis-block">
+        <h3>自己ベスト記録 <small>記録時の試合情報</small></h3>
+        <div class="best-record-grid">
+          ${definitions.map(definition => bestRecordCard(definition, bestMatchBy(matches, definition))).join("")}
+        </div>
+      </section>
+
+      <section class="analysis-block">
+        <h3>カテゴリ別 TOP3 <small>単試合記録</small></h3>
+        <div class="best-ranking-grid">
+          ${definitions.filter(definition => definition.showRanking).map(definition => bestRankingPanel(definition, matches)).join("")}
+        </div>
+      </section>
+
+      <section class="analysis-block">
+        <h3>自己ベスト更新履歴 <small>新記録を達成した試合</small></h3>
+        <div class="record-timeline">
+          ${recordProgression(matches, definitions)}
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function bestMetricDefinitions() {
+  return [
+    { id: "damage", label: "最高与ダメージ", type: "number", value: match => Number(match.damage || 0), showRanking: true },
+    { id: "damageTaken", label: "最大被ダメージ", type: "number", value: match => Number(match.damageTaken || 0), showRanking: false },
+    { id: "healing", label: "最高回復量", type: "number", value: match => Number(match.healing || 0), showRanking: true },
+    { id: "kills", label: "最高KO", type: "integer", value: match => Number(match.kills || 0), showRanking: true },
+    { id: "assists", label: "最高Assist", type: "integer", value: match => Number(match.assists || 0), showRanking: true },
+    { id: "survival", label: "最高被ダメ生存値", type: "number", value: matchSurvivalValue, showRanking: true }
+  ];
+}
+
+function bestMatchBy(matches, definition) {
+  return [...matches].sort((a, b) => definition.value(b) - definition.value(a) || compareMatchesNewest(a, b))[0] || null;
+}
+
+function bestRecordCard(definition, match) {
+  const value = match ? definition.value(match) : 0;
+  return `
+    <article class="best-record-card">
+      <span>${definition.label}</span>
+      <strong>${formatBestValue(value, definition.type)}</strong>
+      <div class="best-record-context">
+        <b>${jobIcon(match.job)}${jobName(match.job)}</b>
+        <small>${match.date.replaceAll("-", "/")} ${match.time || ""}</small>
+        <small>${match.map}・${match.rank}位</small>
+      </div>
+    </article>
+  `;
+}
+
+function bestRankingPanel(definition, matches) {
+  const rows = [...matches]
+    .sort((a, b) => definition.value(b) - definition.value(a) || compareMatchesNewest(a, b))
+    .slice(0, 3);
+  return `
+    <article class="best-ranking-panel">
+      <h4>${definition.label}</h4>
+      <ol>
+        ${rows.map((match, index) => `
+          <li>
+            <span>${index + 1}</span>
+            <b>${jobIcon(match.job)}${jobName(match.job)}</b>
+            <strong>${formatBestValue(definition.value(match), definition.type)}</strong>
+            <small>${match.date.replaceAll("-", "/")}・${match.map}</small>
+          </li>
+        `).join("")}
+      </ol>
+    </article>
+  `;
+}
+
+function recordProgression(matches, definitions) {
+  const records = new Map();
+  const events = [];
+  Analytics.byDate(matches).forEach(match => {
+    definitions.forEach(definition => {
+      const value = definition.value(match);
+      const previous = records.get(definition.id) || 0;
+      if (value > previous) {
+        records.set(definition.id, value);
+        events.push({ definition, match, value });
+      }
+    });
+  });
+  return events.reverse().slice(0, 16).map(event => `
+    <article class="record-timeline-row">
+      <time>${event.match.date.replaceAll("-", "/")}<small>${event.match.time || ""}</small></time>
+      <span>${event.definition.label}</span>
+      <strong>${formatBestValue(event.value, event.definition.type)}</strong>
+      <b>${jobIcon(event.match.job)}${jobName(event.match.job)}</b>
+      <small>${event.match.map}・${event.match.rank}位</small>
+    </article>
+  `).join("") || `<p class="history-empty">更新履歴がありません</p>`;
+}
+
+function matchSurvivalValue(match) {
+  return Number(match.damageTaken || 0) / (1 + Number(match.deaths || 0));
+}
+
+function formatBestValue(value, type) {
+  return type === "integer" ? formatNumber(Math.round(value)) : formatNumber(value);
+}
+
+function compareMatchesNewest(a, b) {
+  return `${b.date}|${b.time || ""}|${b.matchNo || 0}`.localeCompare(`${a.date}|${a.time || ""}|${a.matchNo || 0}`);
+}
+
+function bestBy(rows, selector) {
+  return [...rows].sort((a, b) => selector(b) - selector(a) || b.matches - a.matches)[0];
+}
+
+function analysisEmpty(title, message) {
+  return `
+    <section class="analysis-empty">
+      <strong>${title}</strong>
+      <p>${message}</p>
+      <button type="button" data-open-tab="data">データタブを開く</button>
+    </section>
+  `;
 }
 
 function summaryAnalysis(matches, summary) {

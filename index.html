@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Frontline Record Manager</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-021">
+  <title>FFXIV Frontline Battle Analytics</title>
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-022">
 </head>
 <body>
   <div class="app-shell">
     <header class="app-header">
       <div class="brand-area">
-        <img class="brand-flags-image" src="./assets/brand/gc-banner-flags.png?v=20260722-021" alt="黒渦団・双蛇党・不滅隊">
+        <img class="brand-flags-image" src="./assets/brand/gc-banner-flags.png?v=20260722-022" alt="黒渦団・双蛇党・不滅隊">
         <div class="brand-title-art" aria-label="FFXIV Frontline Battle Analytics">
           <div class="brand-main-title">FFXIV FRONTLINE BATTLE ANALYTICS</div>
           <div class="brand-ja-title">フロントライン戦績管理 Ver.1.0</div>
@@ -18,18 +18,19 @@
       </div>
     </header>
 
-    <nav class="tab-bar" aria-label="Main navigation">
-      <button class="tab active" data-tab="dashboard">ダッシュボード</button>
-      <button class="tab" data-tab="summary">総集計</button>
-      <button class="tab" data-tab="jobs">ジョブ別分析</button>
-      <button class="tab" data-tab="maps">マップ別分析</button>
-      <button class="tab" data-tab="bests">自己ベスト</button>
-      <button class="tab" data-tab="data">データ</button>
-      <button class="tab" data-tab="settings">使い方</button>
+    <nav class="tab-bar" aria-label="メインナビゲーション" role="tablist">
+      <button class="tab active" type="button" data-tab="dashboard">ダッシュボード</button>
+      <button class="tab" type="button" data-tab="summary">総集計</button>
+      <button class="tab" type="button" data-tab="jobs">ジョブ別分析</button>
+      <button class="tab" type="button" data-tab="maps">マップ別分析</button>
+      <button class="tab" type="button" data-tab="bests">自己ベスト</button>
+      <button class="tab" type="button" data-tab="data">データ</button>
+      <button class="tab" type="button" data-tab="settings">使い方</button>
     </nav>
 
     <main>
       <section class="tab-panel active" id="dashboard">
+        <div id="dashboardEmpty"></div>
         <section class="manager-grid">
           <article class="panel summary-panel">
             <div class="panel-head"><h2>総合サマリー</h2></div>
@@ -94,26 +95,26 @@
         </section>
       </section>
 
-      <section class="tab-panel" id="summary"><article class="panel"><div class="panel-head"><h2>総集計</h2></div><div id="summaryDetail"></div></article></section>
+      <section class="tab-panel" id="summary"><article class="panel"><div class="panel-head"><h2>総集計</h2><span>全期間の詳細統計</span></div><div id="summaryDetail"></div></article></section>
       <section class="tab-panel" id="jobs">
         <article class="panel">
-          <div class="panel-head"><h2>ジョブ別分析</h2><span>All Jobs</span></div>
+          <div class="panel-head"><h2>ジョブ別分析</h2><span>ロール・ジョブ比較</span></div>
           <div id="jobsDetail"></div>
         </article>
       </section>
-      <section class="tab-panel" id="maps"><article class="panel"><div class="panel-head"><h2>マップ別分析</h2></div><div id="mapsDetail"></div></article></section>
-      <section class="tab-panel" id="bests"><article class="panel"><div class="panel-head"><h2>自己ベスト</h2></div><div id="bestsDetail"></div></article></section>
+      <section class="tab-panel" id="maps"><article class="panel"><div class="panel-head"><h2>マップ別分析</h2><span>勝率・戦闘傾向・使用ジョブ</span></div><div id="mapsDetail"></div></article></section>
+      <section class="tab-panel" id="bests"><article class="panel"><div class="panel-head"><h2>自己ベスト</h2><span>記録・TOP3・更新履歴</span></div><div id="bestsDetail"></div></article></section>
       <section class="tab-panel" id="data">
         <article class="panel">
-          <div class="panel-head"><h2>データ管理</h2><span>CSV管理</span></div>
+          <div class="panel-head"><h2>データ管理</h2><span>CSVインポート・バックアップ</span></div>
           <div class="action-row">
             <label class="import-button primary">CSV読み込み<input id="importCsv" type="file" accept=".csv,text/csv"></label>
             <button id="downloadCsvTemplate" type="button">ChatGPT用CSVひな形</button>
-            <button id="exportJson">JSON Export</button>
-            <label class="import-button">JSON Import<input id="importJson" type="file" accept="application/json"></label>
+            <button id="exportJson">JSONバックアップ</button>
+            <label class="import-button">JSON復元<input id="importJson" type="file" accept="application/json"></label>
             <button id="clearData" type="button">全データ削除</button>
           </div>
-          <div id="csvStatus" class="import-status">ChatGPTで作成したCSVを読み込んでください。データがある場合は未登録分だけ追記します。</div>
+          <div id="csvStatus" class="import-status">初回登録も追加登録も「CSV読み込み」を使用します。登録済みの試合は自動的に除外されます。</div>
           <div class="csv-guide">
           <p class="muted">CSV列: Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage</p>
             <p class="muted">日本語ヘッダー（日付、時間、マップ、所属勢力、順位、ジョブ、K、D、A、与ダメ、被ダメ、回復、与ダメ1位）にも対応します。</p>
@@ -123,18 +124,27 @@
       </section>
       <section class="tab-panel" id="settings">
         <article class="panel">
-          <div class="panel-head"><h2>使い方</h2><span>v1.0</span></div>
-          <p class="muted">スクリーンショットの読み取りはChatGPTで行い、CSVに整理してからデータタブで読み込んでください。</p>
+          <div class="panel-head"><h2>使い方</h2><span>はじめての方へ</span></div>
+          <div class="help-grid">
+            <article><b>1</b><h3>スクリーンショットを読み取る</h3><p>戦績スクリーンショットをChatGPTへ送り、このアプリのCSV形式で出力するよう依頼します。</p></article>
+            <article><b>2</b><h3>CSVを読み込む</h3><p>データタブの「CSV読み込み」を選択します。初回も追加分も同じ操作です。</p></article>
+            <article><b>3</b><h3>内容を確認する</h3><p>ダッシュボードで現在の状況を確認し、各分析タブで全期間の傾向を詳しく見ます。</p></article>
+            <article><b>4</b><h3>バックアップする</h3><p>定期的にJSONバックアップを保存してください。同じブラウザ内のデータ削除や端末移行に備えられます。</p></article>
+          </div>
+          <div class="help-actions">
+            <button type="button" data-open-tab="data">データタブを開く</button>
+            <p>CSVの列が分からない場合は、データタブの「ChatGPT用CSVひな形」を利用してください。</p>
+          </div>
         </article>
       </section>
     </main>
   </div>
 
-  <script src="./assets/js/data.js?v=20260722-021"></script>
-  <script src="./assets/js/store.js?v=20260722-021"></script>
-  <script src="./assets/js/analytics.js?v=20260722-021"></script>
-  <script src="./assets/js/charts.js?v=20260722-021"></script>
-  <script src="./assets/js/ui.js?v=20260722-021"></script>
-  <script src="./assets/js/app.js?v=20260722-021"></script>
+  <script src="./assets/js/data.js?v=20260722-022"></script>
+  <script src="./assets/js/store.js?v=20260722-022"></script>
+  <script src="./assets/js/analytics.js?v=20260722-022"></script>
+  <script src="./assets/js/charts.js?v=20260722-022"></script>
+  <script src="./assets/js/ui.js?v=20260722-022"></script>
+  <script src="./assets/js/app.js?v=20260722-022"></script>
 </body>
 </html>
