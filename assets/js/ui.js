@@ -196,7 +196,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-017";
+const ASSET_VERSION = "20260722-018";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -389,9 +389,9 @@ function survivalIndexRow(point, index) {
     <li class="survival-index-row">
       <span class="ranking-order">${index + 1}</span>
       <span class="ranking-name">${jobIcon(point.id)}<b>${point.label}</b>${point.matches < 3 ? `<small>参考値</small>` : ""}</span>
-      <strong>${Math.round(point.survivalIndex)}</strong>
+      <strong>指数 ${Math.round(point.survivalIndex)}</strong>
       <em>${point.matches}戦</em>
-      <span class="survival-index-detail">被ダメ／生存機会 ${formatNumber(point.survivalValue)}</span>
+      <span class="survival-index-detail">被ダメ生存値 ${formatNumber(point.survivalValue)}</span>
     </li>
   `;
 }
