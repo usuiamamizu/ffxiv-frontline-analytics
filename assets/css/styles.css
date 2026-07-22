@@ -1202,7 +1202,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-015") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-016") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1402,6 +1402,38 @@ tbody tr:hover td {
 
 .stat-card-sub span {
   white-space: nowrap;
+}
+
+.stat-card-sub-detail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.stat-card-sub-detail span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 6px;
+  background: rgba(0, 0, 0, .16);
+  text-align: center;
+}
+
+.stat-card-sub-detail .stat-card-sub-primary {
+  grid-column: 1 / -1;
+}
+
+.stat-card-sub-detail small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.stat-card-sub-detail b {
+  min-width: 0;
+  color: #f3d99b;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .compact-table-wrap {

@@ -196,7 +196,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-015";
+const ASSET_VERSION = "20260722-016";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -329,7 +329,7 @@ function buildSurvivalMetrics(stats) {
   const totalDowns = stats.reduce((sum, stat) => sum + stat.avgDeaths * stat.matches, 0);
   const baseline = totalMatches + totalDowns ? totalDamageTaken / (totalMatches + totalDowns) : 0;
   const points = stats.map(stat => {
-    const survivalValue = stat.avgDamageTaken / (1 + stat.avgDeaths);
+    const survivalValue = statDamageSurvivalValue(stat);
     return {
       id: stat.id,
       label: jobName(stat.id),
@@ -378,6 +378,10 @@ function survivalAnalysis(stats) {
       </section>
     </section>
   `;
+}
+
+function statDamageSurvivalValue(stat) {
+  return stat.avgDamageTaken / (1 + stat.avgDeaths);
 }
 
 function survivalIndexRow(point, index) {
@@ -515,8 +519,12 @@ function statCards(stats, showJob, compact) {
           <span class="${stat.firsts ? "rank-1" : ""}"><b>${formatPercent(stat.firsts / stat.matches)}</b><small>1位率</small></span>
           <span class="${stat.topDamage ? "rank-1" : ""}"><b>${stat.topDamage}</b><small>与ダメ1位</small></span>
         </div>
-        <div class="stat-card-sub">
-          <span>平均与ダメ ${formatNumber(stat.avgDamage)}</span>
+        <div class="stat-card-sub${compact ? "" : " stat-card-sub-detail"}">
+          ${compact ? `<span>平均与ダメ ${formatNumber(stat.avgDamage)}</span>` : `
+            <span class="stat-card-sub-primary"><small>平均与ダメ</small><b>${formatNumber(stat.avgDamage)}</b></span>
+            <span><small>平均Assist</small><b>${formatDecimal(stat.avgAssists, 1)}</b></span>
+            <span><small>被ダメ生存値</small><b>${formatNumber(statDamageSurvivalValue(stat))}</b></span>
+          `}
         </div>
       </article>
     `).join("")}
@@ -570,7 +578,7 @@ function summaryAnalysis(matches, summary) {
           ${averageMetricCard("平均被ダメージ", formatNumber(avgRaw(matches, "damageTaken")))}
           ${averageMetricCard("平均回復量", formatNumber(avgRaw(matches, "healing")))}
           ${averageMetricCard("K/D比", formatDecimal(kdRatio(matches), 2))}
-          ${averageMetricCard("平均被ダメ生存値", formatNumber(damageSurvivalValue(matches)))}
+          ${averageMetricCard("被ダメ生存値", formatNumber(damageSurvivalValue(matches)))}
         </div>
         <aside class="survival-value-guide" aria-label="被ダメ生存値の説明">
           <strong>被ダメ生存値とは</strong>
