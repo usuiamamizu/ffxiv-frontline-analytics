@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-045">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260723-048">
 </head>
 <body>
   <div class="app-shell">
@@ -109,7 +109,6 @@
           <div class="panel-head"><h2>データ管理</h2><span>CSVインポート・バックアップ</span></div>
           <div class="action-row">
             <label class="import-button primary">CSV読み込み<input id="importCsv" type="file" accept=".csv,text/csv"></label>
-            <button id="downloadCsvTemplate" type="button">ChatGPT用CSVテンプレート</button>
             <button id="exportJson">JSONバックアップ</button>
             <label class="import-button">JSON復元<input id="importJson" type="file" accept="application/json"></label>
             <button id="clearData" type="button">全データ削除</button>
@@ -163,10 +162,18 @@
               <strong>スクリーンショットの取り扱いについて</strong>
               <p>画像には、ほかのプレイヤーのキャラクター名やチャットが写る場合があります。気になる場合は、必要な戦績数値を隠さない範囲で名前やチャット欄を加工してから送信してください。</p>
             </aside>
+            <div class="prompt-send-instruction">
+              <span>撮影後の操作</span>
+              <div><strong>スクリーンショットと依頼文をセットで送信します</strong><p>下のボタンから依頼文を開いてコピーし、撮影した画像と一緒にChatGPTへ送ってください。</p></div>
+            </div>
             <details class="chatgpt-prompt-guide">
-              <summary>ChatGPTへの依頼文を表示</summary>
+              <summary>
+                <span class="prompt-step">STEP 2</span>
+                <span class="prompt-summary-copy"><strong>ChatGPTへの依頼文を開く</strong><small>画像と一緒に送る文章を表示します</small></span>
+                <span class="prompt-summary-action"><span class="when-closed">依頼文を表示</span><span class="when-open">依頼文を閉じる</span><i aria-hidden="true"></i></span>
+              </summary>
               <div class="prompt-toolbar">
-                <p>画像と一緒に次の文章を送ります。</p>
+                <p><strong>この依頼文をコピーし、撮影したスクリーンショットと一緒にChatGPTへ送ってください。</strong></p>
                 <button id="copyChatGptPrompt" type="button">依頼文をコピー</button>
                 <span id="copyPromptStatus" role="status" aria-live="polite"></span>
               </div>
@@ -386,14 +393,14 @@ CSVの数値には桁区切りのカンマを入れないでください。
             </details>
           </section>
           <div class="help-grid">
-            <article><b>1</b><h3>ChatGPTでCSVを作る</h3><p>撮影例に沿った画像と上の依頼文をChatGPTへ送り、追加分だけのCSVを作成します。ファイル名に日付がない場合は撮影日も伝えます。</p></article>
+            <article><b>1</b><h3>画像と依頼文を送る</h3><p>上の大きな「ChatGPTへの依頼文を開く」ボタンから文章をコピーし、撮影した画像と一緒にChatGPTへ送ります。</p></article>
             <article><b>2</b><h3>CSVを読み込む</h3><p>データタブの「CSV読み込み」を選択します。初回も追加分も同じ操作で、試合No.は自動で付きます。</p></article>
             <article><b>3</b><h3>内容を確認する</h3><p>ダッシュボードで追加件数と最新戦績を確認し、各分析タブで全期間の傾向を詳しく見ます。</p></article>
             <article><b>4</b><h3>バックアップする</h3><p>定期的にJSONバックアップを保存してください。サイトデータの削除や端末移行に備えられます。</p></article>
           </div>
           <div class="help-actions">
             <button type="button" data-open-tab="data">データタブを開く</button>
-            <p>CSVの列が分からない場合は、データタブの「ChatGPT用CSVテンプレート」を利用してください。</p>
+            <p>ChatGPTからCSVファイルを受け取ったら、データタブの「CSV読み込み」から登録します。</p>
           </div>
         </article>
       </section>
@@ -465,11 +472,11 @@ CSVの数値には桁区切りのカンマを入れないでください。
     </form>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260722-045"></script>
-  <script src="./assets/js/store.js?v=20260722-045"></script>
-  <script src="./assets/js/analytics.js?v=20260722-045"></script>
-  <script src="./assets/js/charts.js?v=20260722-045"></script>
-  <script src="./assets/js/ui.js?v=20260722-045"></script>
-  <script src="./assets/js/app.js?v=20260722-045"></script>
+  <script src="./assets/js/data.js?v=20260723-048"></script>
+  <script src="./assets/js/store.js?v=20260723-048"></script>
+  <script src="./assets/js/analytics.js?v=20260723-048"></script>
+  <script src="./assets/js/charts.js?v=20260723-048"></script>
+  <script src="./assets/js/ui.js?v=20260723-048"></script>
+  <script src="./assets/js/app.js?v=20260723-048"></script>
 </body>
 </html>

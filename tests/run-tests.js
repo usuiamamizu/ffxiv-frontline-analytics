@@ -69,10 +69,24 @@ test("Screenshot guide supports zoom and privacy guidance", () => {
     && source.includes("戦績ウィンドウの拡縮は140％を推奨します")
     && source.includes("画面に収まらない場合は120％程度まで下げます");
 });
+test("Screenshot prompt is presented as a prominent send step", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  return source.includes("スクリーンショットと依頼文をセットで送信します")
+    && source.includes("ChatGPTへの依頼文を開く")
+    && source.includes("撮影したスクリーンショットと一緒にChatGPTへ送ってください")
+    && source.includes('class="prompt-summary-action"');
+});
 test("Data tab links directly to the screenshot guide", () => {
   const source = fs.readFileSync("index.html", "utf8");
   return source.includes('data-open-tab="settings" data-scroll-target="#screenshotGuideTitle"')
     && source.includes("スクリーンショットからCSVを作る方法を見る");
+});
+test("Obsolete ChatGPT CSV template is removed", () => {
+  const html = fs.readFileSync("index.html", "utf8");
+  const app = fs.readFileSync("assets/js/app.js", "utf8");
+  return !html.includes("ChatGPT用CSVテンプレート")
+    && !html.includes('id="downloadCsvTemplate"')
+    && !app.includes("downloadCsvTemplate");
 });
 test("Registered match cards provide edit and delete actions", () => {
   const html = context.testUi.dataRecordCard(match());
