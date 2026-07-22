@@ -306,7 +306,7 @@ function normalizeMatchRecord(record, rowNumber, source, preserveIdentity) {
 function validateMatch(match, raw, rowNumber, source, preserveIdentity) {
   const errors = [];
   if (!isRealDate(match.date)) errors.push("日付は実在するYYYY-MM-DD形式で入力してください");
-  if (raw.time && !match.time) errors.push("時間はHH:MM形式で入力してください");
+  if (raw.time && !match.time) errors.push("時間はHH:MMまたはHH:MM:SS形式で入力してください");
   if (!match.map) errors.push(`未対応のマップです「${safeInput(raw.map)}」`);
   if (!match.grandCompany) errors.push(`所属勢力は黒渦団・双蛇党・不滅隊から指定してください「${safeInput(raw.grandCompany)}」`);
   if (!match.job) errors.push(`未対応のジョブです「${safeInput(raw.job)}」`);
@@ -386,12 +386,14 @@ function normalizeDate(value) {
 function normalizeTime(value) {
   const text = cleanCell(value);
   if (!text) return "";
-  const match = text.match(/^(\d{1,2}):(\d{2})$/);
+  const match = text.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
   if (!match) return "";
   const hour = Number(match[1]);
   const minute = Number(match[2]);
-  if (hour > 23 || minute > 59) return "";
-  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  const second = match[3] === undefined ? null : Number(match[3]);
+  if (hour > 23 || minute > 59 || (second !== null && second > 59)) return "";
+  const normalized = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  return second === null ? normalized : `${normalized}:${String(second).padStart(2, "0")}`;
 }
 
 function isRealDate(value) {
