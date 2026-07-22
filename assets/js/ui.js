@@ -203,7 +203,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-019";
+const ASSET_VERSION = "20260722-020";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",

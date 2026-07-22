@@ -910,6 +910,13 @@ th {
   mix-blend-mode: normal;
   forced-color-adjust: none;
 }
+#latestRows .job-icon {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
 .gc-name.maelstrom-text { color: #ff4f3c; }
 .gc-name.adders-text { color: #ffd232; }
 .gc-name.flames-text { color: #4cc5ff; }
@@ -1224,7 +1231,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-019") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-020") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
