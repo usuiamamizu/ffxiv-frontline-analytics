@@ -2746,3 +2746,536 @@ tbody tr:hover td {
   }
   .ocr-panel { grid-template-columns: 1fr; }
 }
+
+/* v2 readability and layout system */
+:root {
+  --font-display: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
+  --font-ui: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  --font-section: 20px;
+  --font-subsection: 18px;
+  --font-card-title: 16px;
+  --font-label: 14px;
+  --font-body: 14px;
+  --font-caption: 12px;
+  --bg: #02090d;
+  --panel: #06171d;
+  --panel-2: #0a222a;
+  --line: #a5772c;
+  --line-soft: rgba(202, 151, 59, .52);
+  --gold: #dda943;
+  --gold-bright: #ffe098;
+  --text: #f4dfb2;
+  --muted: #c8ad77;
+  --paper: #d8c38d;
+  --paper-ink: #160f08;
+}
+
+html { font-size: 16px; }
+body {
+  font-family: var(--font-ui);
+  font-size: var(--font-body);
+  font-weight: 500;
+  line-height: 1.55;
+  background:
+    radial-gradient(circle at 50% -100px, rgba(43, 91, 99, .32), transparent 680px),
+    #02090d;
+}
+
+button,
+input,
+select { font-family: var(--font-ui); font-weight: 700; }
+
+.app-shell {
+  width: min(1600px, 100%);
+  padding: 12px 16px 20px;
+}
+
+.app-header {
+  min-height: 92px;
+  padding: 5px 4px 10px;
+}
+
+.brand-area { gap: 20px; }
+.brand-flags-image {
+  width: clamp(112px, 9vw, 146px);
+  height: 74px;
+}
+.brand-title-art,
+.panel-head h2,
+.analysis-block h3,
+.analysis-section-title,
+.recent-history > summary { font-family: var(--font-display); }
+.brand-main-title {
+  font-size: clamp(28px, 2.7vw, 44px);
+  font-weight: 700;
+  line-height: 1.08;
+}
+.brand-ja-title {
+  margin-top: 3px;
+  font-size: clamp(15px, 1.3vw, 21px);
+  font-weight: 800;
+}
+
+.tab-bar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+  padding: 10px 0 12px;
+  overflow: visible;
+}
+.tab {
+  min-width: 0;
+  min-height: 40px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: normal;
+}
+.tab.active {
+  color: #fff4c7;
+  border-color: #e0ad51;
+}
+.tab:focus-visible,
+button:focus-visible,
+.import-button:focus-within {
+  outline: 2px solid rgba(255, 224, 152, .76);
+  outline-offset: 2px;
+}
+
+.panel {
+  border-color: rgba(202, 151, 59, .82);
+  background: #06171d;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 152, .06),
+    0 8px 22px rgba(0, 0, 0, .22);
+}
+.panel-head {
+  min-height: 43px;
+  padding: 8px 18px;
+  background: #10252a;
+}
+.panel-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: var(--font-section);
+  font-weight: 800;
+  line-height: 1.3;
+}
+.panel-head h2::before {
+  content: "◆";
+  color: #c99535;
+  font-size: 10px;
+}
+.panel-head span {
+  color: #d0b784;
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+
+.manager-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 270px) 300px;
+  grid-auto-rows: 300px;
+  gap: 14px;
+  margin-top: 14px;
+}
+.manager-grid > .summary-panel {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+.manager-grid > .role-usage-panel,
+.manager-grid > .job-usage-panel { grid-column: span 5; }
+.manager-grid > .chart-panel:not(.role-usage-panel):not(.job-usage-panel) {
+  grid-column: span 6;
+  min-height: 270px;
+}
+.summary-panel { padding-bottom: 10px; }
+.chart-panel {
+  grid-template-rows: 43px minmax(0, 1fr);
+  min-height: 270px;
+}
+.summary-grid {
+  grid-template-columns: .9fr 1.7fr 1fr 1fr;
+  gap: 12px;
+  padding: 14px;
+}
+.average-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+}
+.summary-card,
+.avg-card,
+.analysis-metric,
+.analysis-average-card,
+.map-highlight,
+.map-insight-card,
+.best-record-card {
+  border-color: #9b763d;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.18), transparent 32%),
+    #d8c38d;
+  box-shadow:
+    inset 0 0 0 2px rgba(90, 60, 23, .18),
+    inset 0 0 22px rgba(75, 44, 13, .12),
+    0 3px 8px rgba(0, 0, 0, .24);
+}
+.summary-card { min-height: 130px; }
+.summary-card span,
+.avg-card span,
+.analysis-metric span,
+.analysis-average-card span,
+.map-highlight span,
+.map-insight-card > span,
+.best-record-card > span {
+  color: #1f1409;
+  font-family: var(--font-ui);
+  font-size: var(--font-label);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.summary-card strong { font-size: clamp(32px, 2.7vw, 42px); }
+.summary-card small,
+.analysis-metric small,
+.map-highlight small {
+  font-size: var(--font-caption);
+  font-weight: 800;
+}
+.avg-card {
+  min-height: 84px;
+  padding-bottom: 10px;
+}
+.avg-card strong {
+  font-size: clamp(20px, 1.6vw, 27px);
+  font-weight: 800;
+}
+.rank-breakdown { gap: 8px; }
+.rank-breakdown b { font-size: 25px; }
+
+.job-usage-layout {
+  grid-template-columns: minmax(170px, .9fr) minmax(190px, 1.1fr);
+  gap: 12px;
+  padding: 10px 14px 14px;
+}
+.usage-list { display: grid; gap: 3px; }
+.usage-row {
+  grid-template-columns: 32px minmax(0, 1fr) 58px;
+  gap: 8px;
+  min-height: 36px;
+  padding: 3px 5px;
+  border-bottom: 1px solid rgba(165, 119, 44, .22);
+  font-size: var(--font-body);
+}
+.usage-name { font-weight: 700; }
+.usage-percent { font-size: 13px; font-weight: 800; }
+.usage-swatch { width: 13px; height: 13px; }
+.role-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-left: 3px solid var(--role-accent);
+}
+.role-icon img {
+  display: block;
+  width: 27px;
+  height: 27px;
+  object-fit: contain;
+}
+
+.latest-panel,
+.bottom-grid { margin-top: 14px; }
+.bottom-grid { gap: 14px; }
+.table-wrap {
+  padding: 12px;
+  overflow: visible;
+}
+table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.4;
+}
+th,
+td {
+  padding: 7px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+th { font-size: 12px; font-weight: 800; }
+.latest-panel th:nth-child(1) { width: 4%; }
+.latest-panel th:nth-child(2) { width: 8%; }
+.latest-panel th:nth-child(3) { width: 16%; }
+.latest-panel th:nth-child(4) { width: 8%; }
+.latest-panel th:nth-child(5) { width: 5%; }
+.latest-panel th:nth-child(6) { width: 10%; }
+.latest-panel th:nth-child(7),
+.latest-panel th:nth-child(8) { width: 4.5%; }
+.latest-panel th:nth-child(9) { width: 5.5%; }
+.latest-panel th:nth-child(10),
+.latest-panel th:nth-child(11),
+.latest-panel th:nth-child(12) { width: 9%; }
+.latest-panel th:nth-child(13) { width: 7%; }
+
+.analysis-page {
+  gap: 16px;
+  padding: 16px;
+}
+.analysis-block,
+.job-analysis-section {
+  border-color: rgba(202, 151, 59, .68);
+  background: #07191f;
+}
+.analysis-block h3,
+.analysis-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 44px;
+  padding: 9px 15px;
+  color: var(--gold-bright);
+  background: #14272a;
+  font-size: var(--font-subsection);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.analysis-block h3::before,
+.analysis-section-title::before {
+  content: "◆";
+  color: #c99535;
+  font-size: 9px;
+}
+.analysis-block h3 small,
+.analysis-section-title small {
+  margin-left: auto;
+  color: #d0b784;
+  font-family: var(--font-ui);
+  font-size: var(--font-caption);
+  font-weight: 700;
+}
+.analysis-two-column { gap: 16px; }
+.analysis-summary-grid,
+.analysis-average-grid,
+.map-highlight-grid,
+.map-insight-grid,
+.map-detail-grid,
+.best-record-grid,
+.best-ranking-grid,
+.ranking-grid { gap: 12px; padding: 14px; }
+.analysis-summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.analysis-metric,
+.analysis-average-card { min-height: 102px; }
+.analysis-metric strong,
+.analysis-average-card strong { font-weight: 800; }
+
+.full-job-panel h4,
+.role-job-panel h4,
+.survival-scatter-panel h4,
+.survival-index-panel h4,
+.ranking-panel h4,
+.best-ranking-panel h4,
+.map-detail-card h4 {
+  min-height: 42px;
+  padding: 9px 11px;
+  color: #ffe5aa;
+  font-family: var(--font-ui);
+  font-size: var(--font-card-title);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.role-job-panel h4 small,
+.survival-scatter-panel > p,
+.survival-index-note,
+.outcome-note,
+.best-ranking-link > small,
+.map-detail-card > header span {
+  font-size: var(--font-caption);
+  line-height: 1.5;
+}
+.role-overview-name { gap: 8px; font-size: var(--font-body); }
+.role-overview-name .role-icon,
+.role-job-panel h4 .role-icon {
+  flex-basis: 32px;
+  width: 32px;
+  height: 32px;
+}
+.role-overview-name .role-icon img,
+.role-job-panel h4 .role-icon img { width: 29px; height: 29px; }
+.role-stacked-legend > div {
+  min-height: 50px;
+  padding: 7px 9px;
+}
+.role-stacked-bar { height: 32px; }
+.full-job-legend { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.role-job-donut-row {
+  min-height: 38px;
+  font-size: 13px;
+}
+
+.stat-card-main small,
+.stat-card-sub-detail small,
+.map-stat-grid small,
+.map-top-jobs > span,
+.full-job-row,
+.survival-index-guide code,
+.survival-index-guide span,
+.survival-index-detail,
+.ranking-name small {
+  font-size: var(--font-caption);
+}
+.stat-card-sub { font-size: 13px; }
+.stat-card-sub-detail b,
+.map-stat-grid strong { font-size: 14px; }
+.compact-table { font-size: 13px; }
+.comparison-label,
+.distribution-row > span,
+.outcome-row > span { font-size: var(--font-body); }
+.history-row { min-height: 42px; font-size: 13px; }
+.record-timeline-row { min-height: 48px; font-size: 13px; }
+.record-item,
+.job-line { min-height: 36px; font-size: 14px; }
+.help-grid article { min-height: 175px; }
+.help-grid h3 { font-size: 17px; line-height: 1.4; }
+.help-grid p,
+.help-actions p,
+.muted,
+.import-status { font-size: 13px; line-height: 1.7; }
+.action-row button,
+.import-button { min-height: 42px; padding: 7px 16px; }
+
+.match-detail-summary small,
+.match-detail-identity small { font-size: var(--font-caption); font-weight: 700; }
+.match-detail-stat small { font-size: 13px; }
+.match-detail-footer span { font-size: var(--font-caption); }
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 13px 4px 4px;
+  border-top: 1px solid rgba(202, 151, 59, .32);
+  color: #bda675;
+  font-size: 12px;
+}
+.app-footer p { margin: 0; }
+
+@media (max-width: 1200px) {
+  .manager-grid { grid-template-rows: auto; grid-auto-rows: auto; }
+  .manager-grid > .summary-panel {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .manager-grid > .role-usage-panel,
+  .manager-grid > .job-usage-panel,
+  .manager-grid > .chart-panel:not(.role-usage-panel):not(.job-usage-panel) { grid-column: span 6; }
+  .summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .average-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bottom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  .tab-bar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .manager-grid > .role-usage-panel,
+  .manager-grid > .job-usage-panel,
+  .manager-grid > .chart-panel:not(.role-usage-panel):not(.job-usage-panel) { grid-column: 1 / -1; }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .bottom-grid .panel:first-child { grid-column: auto; }
+  .latest-panel .table-wrap { padding: 10px; overflow: visible; }
+  .latest-panel table,
+  .latest-panel tbody { display: block; width: 100%; min-width: 0; }
+  .latest-panel thead { display: none; }
+  .latest-panel tbody { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .latest-panel tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid rgba(202, 151, 59, .52);
+    background: #07191f;
+  }
+  .latest-panel .latest-empty-row { display: block; grid-column: 1 / -1; }
+  .latest-panel tbody td,
+  .latest-panel tbody tr:nth-child(even) td,
+  .latest-panel tbody tr:hover td {
+    display: block;
+    min-width: 0;
+    padding: 6px 7px;
+    border: 0;
+    background: rgba(0, 0, 0, .16);
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .latest-panel tbody td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: var(--font-caption);
+    font-weight: 700;
+  }
+  .latest-panel .latest-map-cell,
+  .latest-panel .latest-job-cell { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --font-section: 19px;
+    --font-subsection: 17px;
+    --font-card-title: 15px;
+  }
+  .app-shell { padding: 7px; }
+  .app-header { min-height: 78px; padding: 3px 2px 8px; }
+  .brand-area { gap: 10px; }
+  .brand-flags-image { width: 82px; height: 56px; }
+  .brand-main-title { font-size: clamp(18px, 5.8vw, 27px); line-height: 1.08; }
+  .brand-ja-title { font-size: 13px; }
+  .tab-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .tab { min-height: 42px; font-size: 14px; }
+  .tab:last-child { grid-column: 1 / -1; }
+  .panel-head { align-items: flex-start; min-height: 44px; padding: 8px 12px; }
+  .panel-head span { padding-top: 3px; }
+  .manager-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+  .manager-grid > .summary-panel,
+  .manager-grid > .role-usage-panel,
+  .manager-grid > .job-usage-panel,
+  .manager-grid > .chart-panel:not(.role-usage-panel):not(.job-usage-panel) { grid-column: 1; }
+  .summary-grid,
+  .average-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+  .summary-card { min-height: 124px; }
+  .rank-card { grid-column: span 2; }
+  .job-usage-layout { grid-template-columns: 1fr; }
+  .chart-panel { min-height: 300px; }
+  .latest-panel tbody { grid-template-columns: 1fr; }
+  .analysis-page { gap: 10px; padding: 8px; }
+  .analysis-summary-grid { grid-template-columns: 1fr; }
+  .analysis-block h3,
+  .analysis-section-title { align-items: flex-start; flex-wrap: wrap; }
+  .analysis-block h3 small,
+  .analysis-section-title small { width: 100%; margin-left: 18px; }
+  .role-stacked-legend { grid-template-columns: 1fr; }
+  .role-job-panel h4 { align-items: flex-start; flex-direction: column; }
+  .role-job-panel h4 small { margin-left: 40px; }
+  .history-row:not(.history-row-header) > span::before,
+  .outcome-row > strong:nth-child(2)::before,
+  .outcome-row > strong:nth-child(3)::before,
+  .latest-panel tbody td::before { font-size: var(--font-caption); }
+  .match-detail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-footer { align-items: flex-start; flex-direction: column; gap: 4px; }
+}
+
+@media (max-width: 430px) {
+  .summary-grid,
+  .average-grid { grid-template-columns: 1fr; }
+  .rank-card { grid-column: auto; }
+  .brand-main-title { font-size: 18px; }
+  .brand-ja-title { font-size: 12px; }
+}

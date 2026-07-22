@@ -216,7 +216,7 @@ const UI = {
   roleUsageList(segments) {
     document.querySelector("#roleUsageList").innerHTML = segments.map(segment => `
       <div class="usage-row" title="${escapeHtml(segment.label)}">
-        <span class="usage-swatch" style="background:${segment.color}"></span>
+        ${roleIcon(segment.id)}
         <span class="usage-name">${escapeHtml(segment.label)}</span>
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
       </div>
@@ -224,7 +224,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-028";
+const ASSET_VERSION = "20260722-029";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -234,10 +234,10 @@ const JOB_COLORS = [
 ];
 
 const ROLE_DEFS = [
-  { id: "tank", label: "タンク", jobs: ["PLD", "WAR", "DRK", "GNB"], color: "#3f7fbf" },
-  { id: "healer", label: "ヒーラー", jobs: ["WHM", "SCH", "AST", "SGE"], color: "#58a85b" },
-  { id: "melee", label: "近接DPS", jobs: ["MNK", "DRG", "NIN", "SAM", "RPR", "VPR"], color: "#c45a4d" },
-  { id: "ranged", label: "遠隔DPS", jobs: ["BRD", "MCH", "DNC", "BLM", "SMN", "RDM", "PCT"], color: "#b48ad9" }
+  { id: "tank", label: "タンク", icon: "TankRole.png", jobs: ["PLD", "WAR", "DRK", "GNB"], color: "#4f8fd0" },
+  { id: "healer", label: "ヒーラー", icon: "HealerRole.png", jobs: ["WHM", "SCH", "AST", "SGE"], color: "#65b96a" },
+  { id: "melee", label: "近接DPS", icon: "DPSRole.png", jobs: ["MNK", "DRG", "NIN", "SAM", "RPR", "VPR"], color: "#d26455" },
+  { id: "ranged", label: "遠隔DPS", icon: "DPSRole.png", jobs: ["BRD", "MCH", "DNC", "BLM", "SMN", "RDM", "PCT"], color: "#b993dc" }
 ];
 
 function buildRoleUsageSegments(matches) {
@@ -246,6 +246,7 @@ function buildRoleUsageSegments(matches) {
     const value = matches.filter(match => role.jobs.includes(match.job)).length;
     return {
       label: role.label,
+      id: role.id,
       value,
       rate: value / total,
       color: role.color
@@ -268,7 +269,7 @@ function roleAnalysis(matches) {
         <div class="role-stacked-legend">
           ${roles.map(role => `
             <div style="--role-color:${role.color}">
-              <span class="role-overview-name"><i></i>${role.label}</span>
+              <span class="role-overview-name">${roleIcon(role.id)}${role.label}</span>
               <span class="role-usage-count">${role.value}戦</span>
               <strong>${formatPercent(role.rate)}</strong>
             </div>
@@ -281,7 +282,7 @@ function roleAnalysis(matches) {
       <section class="role-job-grid">
         ${roles.map(role => `
           <article class="role-job-panel" style="--role-color:${role.color}">
-            <h4><span><i></i>${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
+            <h4><span>${roleIcon(role.id)}${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
             <div class="role-job-donut-layout">
               <canvas id="roleJobChart-${role.id}" class="role-job-donut" height="250"></canvas>
               <div class="role-job-donut-legend">
@@ -525,6 +526,11 @@ function jobIcon(id) {
 function jobIconSource(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);
   return job?.icon ? `./assets/job-icons/${job.icon}?v=${ASSET_VERSION}` : "";
+}
+function roleIcon(id) {
+  const role = ROLE_DEFS.find(item => item.id === id);
+  if (!role?.icon) return "";
+  return `<span class="role-icon" style="--role-accent:${role.color}" aria-hidden="true"><img src="./assets/role-icons/${role.icon}?v=${ASSET_VERSION}" alt=""></span>`;
 }
 function jobSprite(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);

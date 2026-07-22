@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-028">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-029">
 </head>
 <body>
   <div class="app-shell">
@@ -33,39 +33,39 @@
         <div id="dashboardEmpty"></div>
         <section class="manager-grid">
           <article class="panel summary-panel">
-            <div class="panel-head"><h2>総合サマリー</h2></div>
+            <div class="panel-head"><h2>総合サマリー</h2><span>現在までの記録</span></div>
             <div class="summary-grid" id="summaryCards"></div>
-            <div class="panel-head subhead"><h2>戦績サマリー（平均）</h2></div>
+            <div class="panel-head subhead"><h2>戦績サマリー（平均）</h2><span>1試合あたり</span></div>
             <div class="average-grid" id="averageCards"></div>
             <div class="ratio-strip" id="ratioStrip"></div>
           </article>
 
           <article class="panel chart-panel role-usage-panel">
-            <div class="panel-head"><h2>ロール使用率</h2></div>
+            <div class="panel-head"><h2>ロール使用率</h2><span>4区分</span></div>
             <div class="job-usage-layout">
               <canvas id="roleChart" height="210"></canvas>
               <div id="roleUsageList" class="usage-list"></div>
             </div>
           </article>
           <article class="panel chart-panel job-usage-panel">
-            <div class="panel-head"><h2>ジョブ使用率</h2></div>
+            <div class="panel-head"><h2>ジョブ使用率</h2><span>使用回数 Top 5</span></div>
             <div class="job-usage-layout">
               <canvas id="jobChart" height="210"></canvas>
               <div id="jobUsageList" class="usage-list"></div>
             </div>
           </article>
           <article class="panel chart-panel">
-            <div class="panel-head"><h2>最近10試合の順位推移</h2></div>
+            <div class="panel-head"><h2>順位推移</h2><span>最近10試合</span></div>
             <canvas id="rankTrendChart" height="190"></canvas>
           </article>
           <article class="panel chart-panel">
-            <div class="panel-head"><h2>最近10試合の与ダメージ推移</h2></div>
+            <div class="panel-head"><h2>与ダメージ推移</h2><span>最近10試合</span></div>
             <canvas id="damageTrendChart" height="190"></canvas>
           </article>
         </section>
 
         <article class="panel latest-panel">
-          <div class="panel-head"><h2>最新の戦績一覧</h2></div>
+          <div class="panel-head"><h2>最新の戦績一覧</h2><span>最近10試合</span></div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -138,6 +138,10 @@
         </article>
       </section>
     </main>
+    <footer class="app-footer">
+      <p>FINAL FANTASY XIV © SQUARE ENIX</p>
+      <p>本サイトは非公式の個人向け戦績分析ツールです。</p>
+    </footer>
   </div>
 
   <dialog id="matchDetailDialog" class="match-detail-dialog" aria-labelledby="matchDetailTitle">
@@ -158,11 +162,11 @@
     </div>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260722-028"></script>
-  <script src="./assets/js/store.js?v=20260722-028"></script>
-  <script src="./assets/js/analytics.js?v=20260722-028"></script>
-  <script src="./assets/js/charts.js?v=20260722-028"></script>
-  <script src="./assets/js/ui.js?v=20260722-028"></script>
-  <script src="./assets/js/app.js?v=20260722-028"></script>
+  <script src="./assets/js/data.js?v=20260722-029"></script>
+  <script src="./assets/js/store.js?v=20260722-029"></script>
+  <script src="./assets/js/analytics.js?v=20260722-029"></script>
+  <script src="./assets/js/charts.js?v=20260722-029"></script>
+  <script src="./assets/js/ui.js?v=20260722-029"></script>
+  <script src="./assets/js/app.js?v=20260722-029"></script>
 </body>
 </html>
