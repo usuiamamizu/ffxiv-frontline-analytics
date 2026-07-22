@@ -42,7 +42,9 @@ test("Screenshot guide uses the current CSV format", () => {
   return source.includes("./assets/guide/frontline-result-capture-guide.png")
     && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage")
     && source.includes("以下の形式でCSVファイルを作成してください")
-    && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊");
+    && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊")
+    && source.includes("KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う")
+    && !source.match(/id="chatGptPromptText"[\s\S]*?MatchNo列は作らない/);
 });
 test("CSV rejects impossible dates", () => rejects(row({ date: "2026-02-30" })));
 test("CSV rejects unknown jobs", () => rejects(row({ job: "BLU" })));

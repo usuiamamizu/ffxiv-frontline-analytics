@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-039">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-040">
 </head>
 <body>
   <div class="app-shell">
@@ -135,13 +135,13 @@
             </div>
             <div class="screenshot-guide-layout">
               <figure class="screenshot-example">
-                <img src="./assets/guide/frontline-result-capture-guide.png?v=20260722-039" alt="戦績ウィンドウ、コンテンツ情報HUD、経験値バーを含めたフロントライン戦績スクリーンショットの撮影例" loading="lazy">
+                <img src="./assets/guide/frontline-result-capture-guide.png?v=20260722-040" alt="戦績ウィンドウ、コンテンツ情報HUD、経験値バーを含めたフロントライン戦績スクリーンショットの撮影例" loading="lazy">
                 <figcaption>文字とジョブアイコンが読める解像度のまま、①～③を1枚に収めます。</figcaption>
               </figure>
               <div class="capture-checklist">
                 <h4>撮影前のチェック</h4>
                 <ol>
-                  <li><strong>① 戦績ウィンドウ</strong><span>上部の三国順位と、自分の固定行を含めます。表は「総与ダメージ量」でソートしてください。</span></li>
+                  <li><strong>① 戦績ウィンドウ</strong><span>上部の三国順位と、自分の固定行を含めます。</span><em class="guide-critical">必ず「総与ダメージ量」でソートしてください</em></li>
                   <li><strong>② コンテンツ情報HUD</strong><span>正式なマップ名を判定するため、コンテンツ名が読める状態にします。</span></li>
                   <li><strong>③ 経験値バー</strong><span>自分が使用したジョブを確認できるよう、ジョブ略称とレベル表示を含めます。</span></li>
                 </ol>
@@ -158,22 +158,24 @@
               </div>
               <pre id="chatGptPromptText">添付したFFXIVフロントラインの戦績スクリーンショットを読み取り、以下の形式でCSVファイルを作成してください。
 
-撮影日：画像ファイル名から判定してください。ファイル名に日付がない場合は作成前に質問してください。
+列は必ず次の順番にしてください：
+Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage
+
+Date,Time：画像ファイル名の撮影日時から判定してください。ファイル名に撮影日時がない場合は作成前に質問してください。
 
 ルール：
+- 【重要】戦績ウィンドウは必ず「総与ダメージ量」でソートされている画像を使う
 - 1枚を1試合として、画像を送った順にCSVへ並べる
 - 戦績ウィンドウの一番上の行が自分の固定表示行
 - GrandCompanyは自分の固定表示行にあるキャラクター名の色から判定する。赤は黒渦団、黄色は双蛇党、青は不滅隊
 - Rankは自分の所属勢力を特定し、戦績ウィンドウ上部に表示されたその勢力の順位を使う
 - Jobは自分の行のジョブアイコンと画面下部の経験値バーから判定する
+- KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う
+- Damageは「総与ダメージ量」、DamageTakenは「総被ダメージ量」、Healingは「総与ヒール量」の数値を使う
 - TopDamageは、総与ダメージ量でソートした表で自分の固定表示行の直下に同じ自分の行がある場合だけ1、それ以外は0
 - Mapはコンテンツ情報HUDから読み取り、正式名称で記載する
 - 読み取れない値は推測せず、CSVを作る前に質問する
-- MatchNo列は作らない
-- 数値に桁区切りのカンマを入れない
-
-列は必ず次の順番にしてください：
-Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage</pre>
+- 数値に桁区切りのカンマを入れない</pre>
             </details>
           </section>
           <div class="help-grid">
@@ -213,11 +215,11 @@ Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,T
     </div>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260722-039"></script>
-  <script src="./assets/js/store.js?v=20260722-039"></script>
-  <script src="./assets/js/analytics.js?v=20260722-039"></script>
-  <script src="./assets/js/charts.js?v=20260722-039"></script>
-  <script src="./assets/js/ui.js?v=20260722-039"></script>
-  <script src="./assets/js/app.js?v=20260722-039"></script>
+  <script src="./assets/js/data.js?v=20260722-040"></script>
+  <script src="./assets/js/store.js?v=20260722-040"></script>
+  <script src="./assets/js/analytics.js?v=20260722-040"></script>
+  <script src="./assets/js/charts.js?v=20260722-040"></script>
+  <script src="./assets/js/ui.js?v=20260722-040"></script>
+  <script src="./assets/js/app.js?v=20260722-040"></script>
 </body>
 </html>
