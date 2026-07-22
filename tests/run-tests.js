@@ -41,17 +41,24 @@ test("Screenshot guide uses the current CSV format", () => {
   const source = fs.readFileSync("index.html", "utf8");
   const prompt = source.match(/id="chatGptPromptText">([\s\S]*?)<\/pre>/)?.[1] || "";
   return source.includes("./assets/guide/frontline-result-capture-guide.png")
-    && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage")
-    && source.includes("以下の形式でCSVファイルを作成してください")
-    && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊")
-    && source.includes("KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う")
-    && prompt.includes("この行を自分の戦績として、各項目の数値を読み取る")
-    && prompt.includes("経験値バー横に表示された英語のジョブ略称から判定する")
-    && prompt.includes("経験値バーから判定できない場合のみ、自分の行のジョブアイコンを補助的に使用する")
-    && prompt.includes("DateはYYYY-MM-DD、TimeはHH:MM形式")
+    && prompt.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage")
+    && prompt.includes("画像ごとに完全に独立して解析してください")
+    && prompt.includes("赤またはオレンジ色 → 黒渦団")
+    && prompt.includes("K → KO")
+    && prompt.includes("Jobは、画面下部の経験値バー横に表示されている英語のジョブ略称から判定してください")
+    && prompt.includes("DateはYYYY-MM-DD形式")
+    && prompt.includes("TimeはHH:MM形式")
     && prompt.includes("UTF-8形式のCSVファイル")
-    && !prompt.includes("必ず「総与ダメージ量」でソートされている画像を使う")
     && !source.match(/id="chatGptPromptText"[\s\S]*?MatchNo列は作らない/);
+});
+test("Screenshot prompt protects map, rank, and top damage decisions", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  const prompt = source.match(/id="chatGptPromptText">([\s\S]*?)<\/pre>/)?.[1] || "";
+  return prompt.includes("Mapは、画面右側にある「コンテンツ情報HUD」だけを見て判定してください")
+    && prompt.includes("得点の大小から順位を計算し直さないでください")
+    && prompt.includes("固定表示された自分の行を、ランキングの先頭として扱わないでください")
+    && prompt.includes("自分のDamageと最大Damageが同じ場合だけTopDamageを1にする")
+    && prompt.includes("1画像につき1行だけ出力してください");
 });
 test("Screenshot guide supports zoom and privacy guidance", () => {
   const source = fs.readFileSync("index.html", "utf8");
