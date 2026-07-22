@@ -115,6 +115,131 @@ const Charts = {
     });
   },
 
+  drawScatter(canvas, points, options = {}) {
+    const ctx = setupCanvas(canvas);
+    const { width, height } = canvas.getBoundingClientRect();
+    const pad = {
+      left: width < 520 ? 58 : 78,
+      right: width < 520 ? 22 : 38,
+      top: 42,
+      bottom: 62
+    };
+    const plotWidth = Math.max(80, width - pad.left - pad.right);
+    const plotHeight = Math.max(100, height - pad.top - pad.bottom);
+
+    if (!points.length) {
+      ctx.fillStyle = "#9f967f";
+      ctx.font = "14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("戦績データがありません", width / 2, height / 2);
+      return;
+    }
+
+    const maxX = niceScatterMax(Math.max(...points.map(point => point.x), 1) * 1.12);
+    const maxY = niceScatterMax(Math.max(...points.map(point => point.y), .5) * 1.12);
+    const xAt = value => pad.left + value / maxX * plotWidth;
+    const yAt = value => pad.top + value / maxY * plotHeight;
+
+    if (options.averageX > 0 && options.averageY >= 0) {
+      const averageX = xAt(options.averageX);
+      const averageY = yAt(options.averageY);
+      ctx.fillStyle = "rgba(69, 155, 96, .07)";
+      ctx.fillRect(averageX, pad.top, pad.left + plotWidth - averageX, averageY - pad.top);
+      ctx.fillStyle = "rgba(119, 209, 143, .7)";
+      ctx.font = "12px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText("高被ダメージ・低Down", pad.left + plotWidth - 5, pad.top + 16);
+    }
+
+    ctx.font = "12px sans-serif";
+    for (let i = 0; i <= 4; i += 1) {
+      const x = pad.left + i / 4 * plotWidth;
+      const y = pad.top + i / 4 * plotHeight;
+      ctx.strokeStyle = "rgba(216,163,58,.17)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + plotHeight);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(pad.left + plotWidth, y);
+      ctx.stroke();
+
+      ctx.fillStyle = "#d7cda8";
+      ctx.textAlign = "center";
+      ctx.fillText(compactNumber(maxX * i / 4), x, height - pad.bottom + 22);
+      ctx.textAlign = "right";
+      ctx.fillText(defaultNumber(maxY * i / 4), pad.left - 9, y + 4);
+    }
+
+    ctx.strokeStyle = "rgba(216,163,58,.55)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    ctx.lineTo(pad.left, pad.top + plotHeight);
+    ctx.lineTo(pad.left + plotWidth, pad.top + plotHeight);
+    ctx.stroke();
+
+    if (options.averageX > 0) {
+      ctx.save();
+      ctx.setLineDash([6, 5]);
+      ctx.strokeStyle = "rgba(255,211,107,.66)";
+      ctx.beginPath();
+      ctx.moveTo(xAt(options.averageX), pad.top);
+      ctx.lineTo(xAt(options.averageX), pad.top + plotHeight);
+      ctx.stroke();
+      if (options.averageY >= 0) {
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yAt(options.averageY));
+        ctx.lineTo(pad.left + plotWidth, yAt(options.averageY));
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    ctx.fillStyle = "#f3d99b";
+    ctx.font = "13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("平均被ダメージ →", pad.left + plotWidth / 2, height - 10);
+    ctx.save();
+    ctx.translate(15, pad.top + plotHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("平均Down（上ほど少ない）", 0, 0);
+    ctx.restore();
+
+    const iconSize = width < 520 ? 30 : 38;
+    points.forEach(point => {
+      const x = xAt(point.x);
+      const y = yAt(point.y);
+      const drawPoint = image => {
+        ctx.save();
+        ctx.globalAlpha = point.matches < 3 ? .45 : 1;
+        if (image) ctx.drawImage(image, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+        else {
+          ctx.fillStyle = "#d8a33a";
+          ctx.fillRect(x - 5, y - 5, 10, 10);
+        }
+        ctx.font = `700 ${width < 520 ? 9 : 11}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(0, 8, 12, .9)";
+        ctx.strokeText(point.id, x, y + iconSize / 2 + 12);
+        ctx.fillStyle = "#ffe09c";
+        ctx.fillText(point.id, x, y + iconSize / 2 + 12);
+        ctx.restore();
+      };
+      if (!point.icon) {
+        drawPoint(null);
+        return;
+      }
+      const image = new Image();
+      image.onload = () => drawPoint(image);
+      image.onerror = () => drawPoint(null);
+      image.src = point.icon;
+    });
+  },
+
   legend(ctx, segments, x, y, width) {
     const colWidth = Math.max(110, (width - x * 2) / 2);
     ctx.font = "12px Georgia";
@@ -222,4 +347,12 @@ function compactNumber(value) {
   if (value >= 1000000) return `${Math.round(value / 100000) / 10}M`;
   if (value >= 1000) return `${Math.round(value / 1000)}k`;
   return String(Math.round(value));
+}
+
+function niceScatterMax(value) {
+  if (!Number.isFinite(value) || value <= 0) return 1;
+  const power = 10 ** Math.floor(Math.log10(value));
+  const scaled = value / power;
+  const nice = scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 2.5 ? 2.5 : scaled <= 5 ? 5 : 10;
+  return nice * power;
 }

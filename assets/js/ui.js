@@ -129,6 +129,7 @@ const UI = {
       </section>
       ${roleAnalysis(matches)}
       ${jobPerformanceHighlights(jobStats)}
+      ${survivalAnalysis(jobStats)}
       ${statCards(jobStats, true, false)}
     `;
     document.querySelector("#mapsDetail").innerHTML = statTable(Analytics.mapStats(matches), false, false);
@@ -146,6 +147,15 @@ const UI = {
     const allJobChart = document.querySelector("#allJobChart");
     if (allJobChart && allJobChart.getBoundingClientRect().width > 0) {
       Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "", { legend: false, icons: true });
+    }
+
+    const survivalScatterChart = document.querySelector("#survivalScatterChart");
+    if (survivalScatterChart && survivalScatterChart.getBoundingClientRect().width > 0) {
+      const survivalMetrics = buildSurvivalMetrics(Analytics.jobStats(matches));
+      Charts.drawScatter(survivalScatterChart, survivalMetrics.points, {
+        averageX: survivalMetrics.averageDamageTaken,
+        averageY: survivalMetrics.averageDowns
+      });
     }
 
     const latest = Analytics.latest(matches).reverse();
@@ -172,7 +182,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-009";
+const ASSET_VERSION = "20260722-010";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -289,6 +299,69 @@ function jobPerformanceRow(stat, index, type) {
       <span class="ranking-name">${jobIcon(stat.id)}<b>${jobName(stat.id)}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
       <strong>${formatTypedValue(stat.rankingValue, type)}</strong>
       <em>${stat.matches}戦</em>
+    </li>
+  `;
+}
+
+function buildSurvivalMetrics(stats) {
+  const totalMatches = stats.reduce((sum, stat) => sum + stat.matches, 0);
+  const totalDamageTaken = stats.reduce((sum, stat) => sum + stat.avgDamageTaken * stat.matches, 0);
+  const totalDowns = stats.reduce((sum, stat) => sum + stat.avgDeaths * stat.matches, 0);
+  const baseline = totalMatches + totalDowns ? totalDamageTaken / (totalMatches + totalDowns) : 0;
+  const points = stats.map(stat => {
+    const survivalValue = stat.avgDamageTaken / (1 + stat.avgDeaths);
+    return {
+      id: stat.id,
+      label: jobName(stat.id),
+      icon: jobIconSource(stat.id),
+      matches: stat.matches,
+      x: stat.avgDamageTaken,
+      y: stat.avgDeaths,
+      survivalValue,
+      survivalIndex: baseline ? survivalValue / baseline * 100 : 0
+    };
+  });
+  return {
+    baseline,
+    points,
+    averageDamageTaken: totalMatches ? totalDamageTaken / totalMatches : 0,
+    averageDowns: totalMatches ? totalDowns / totalMatches : 0
+  };
+}
+
+function survivalAnalysis(stats) {
+  const metrics = buildSurvivalMetrics(stats);
+  const top = [...metrics.points]
+    .sort((a, b) => b.survivalIndex - a.survivalIndex || b.matches - a.matches)
+    .slice(0, 3);
+  return `
+    <h3 class="analysis-section-title">被ダメージとDownの関係 <small>右上ほど高被ダメージ・低Down</small></h3>
+    <section class="survival-analysis-grid">
+      <article class="survival-scatter-panel">
+        <h4>平均被ダメージ × 平均Down</h4>
+        <canvas id="survivalScatterChart" height="520"></canvas>
+        <p>破線は全試合平均。1～2試合のジョブは半透明で表示します。</p>
+      </article>
+      <article class="survival-index-panel">
+        <h4>被ダメ生存指数 TOP3</h4>
+        <p class="survival-formula">被ダメ／生存機会を全試合平均＝100として指数化</p>
+        <ol class="ranking-list survival-index-list">
+          ${top.length ? top.map((point, index) => survivalIndexRow(point, index)).join("") : `<li class="empty-row">データなし</li>`}
+        </ol>
+        <p class="survival-index-note">高いほど、多くの被ダメージを受けながらDownを抑えています。</p>
+      </article>
+    </section>
+  `;
+}
+
+function survivalIndexRow(point, index) {
+  return `
+    <li class="survival-index-row">
+      <span class="ranking-order">${index + 1}</span>
+      <span class="ranking-name">${jobIcon(point.id)}<b>${point.label}</b>${point.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <strong>${Math.round(point.survivalIndex)}</strong>
+      <em>${point.matches}戦</em>
+      <span class="survival-index-detail">被ダメ／生存機会 ${formatNumber(point.survivalValue)}</span>
     </li>
   `;
 }
