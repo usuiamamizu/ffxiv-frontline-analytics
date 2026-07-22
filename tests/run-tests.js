@@ -40,7 +40,9 @@ test("CSV accepts Japanese KO and Down headers", () => {
 test("Screenshot guide uses the current CSV format", () => {
   const source = fs.readFileSync("index.html", "utf8");
   return source.includes("./assets/guide/frontline-result-capture-guide.png")
-    && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage");
+    && source.includes("Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage")
+    && source.includes("以下の形式でCSVファイルを作成してください")
+    && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊");
 });
 test("CSV rejects impossible dates", () => rejects(row({ date: "2026-02-30" })));
 test("CSV rejects unknown jobs", () => rejects(row({ job: "BLU" })));

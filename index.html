@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-038">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-039">
 </head>
 <body>
   <div class="app-shell">
@@ -135,7 +135,7 @@
             </div>
             <div class="screenshot-guide-layout">
               <figure class="screenshot-example">
-                <img src="./assets/guide/frontline-result-capture-guide.png?v=20260722-038" alt="戦績ウィンドウ、コンテンツ情報HUD、経験値バーを含めたフロントライン戦績スクリーンショットの撮影例" loading="lazy">
+                <img src="./assets/guide/frontline-result-capture-guide.png?v=20260722-039" alt="戦績ウィンドウ、コンテンツ情報HUD、経験値バーを含めたフロントライン戦績スクリーンショットの撮影例" loading="lazy">
                 <figcaption>文字とジョブアイコンが読める解像度のまま、①～③を1枚に収めます。</figcaption>
               </figure>
               <div class="capture-checklist">
@@ -145,7 +145,7 @@
                   <li><strong>② コンテンツ情報HUD</strong><span>正式なマップ名を判定するため、コンテンツ名が読める状態にします。</span></li>
                   <li><strong>③ 経験値バー</strong><span>自分が使用したジョブを確認できるよう、ジョブ略称とレベル表示を含めます。</span></li>
                 </ol>
-                <div class="capture-note"><strong>撮影日も伝えてください</strong><span>ゲーム画面だけでは日付を確定できない場合があります。複数枚は古い試合から順に送ると整理しやすくなります。</span></div>
+                <div class="capture-note"><strong>ファイル名の日付を確認</strong><span>通常は画像ファイル名の撮影日から判定します。ファイル名に日付がない、または名前を変更した場合は撮影日も伝えてください。</span></div>
                 <p class="privacy-note">キャラクター名は隠しても構いません。ただし、自分の一番上の行、ジョブアイコン、数値、名前の所属勢力色は判別できる状態にしてください。</p>
               </div>
             </div>
@@ -156,13 +156,14 @@
                 <button id="copyChatGptPrompt" type="button">依頼文をコピー</button>
                 <span id="copyPromptStatus" role="status" aria-live="polite"></span>
               </div>
-              <pre id="chatGptPromptText">添付したFFXIVフロントラインの戦績スクリーンショットを読み取り、このアプリへ追加できるCSVファイルを作成してください。
+              <pre id="chatGptPromptText">添付したFFXIVフロントラインの戦績スクリーンショットを読み取り、以下の形式でCSVファイルを作成してください。
 
-撮影日：[ここに日付を入力]
+撮影日：画像ファイル名から判定してください。ファイル名に日付がない場合は作成前に質問してください。
 
 ルール：
 - 1枚を1試合として、画像を送った順にCSVへ並べる
 - 戦績ウィンドウの一番上の行が自分の固定表示行
+- GrandCompanyは自分の固定表示行にあるキャラクター名の色から判定する。赤は黒渦団、黄色は双蛇党、青は不滅隊
 - Rankは自分の所属勢力を特定し、戦績ウィンドウ上部に表示されたその勢力の順位を使う
 - Jobは自分の行のジョブアイコンと画面下部の経験値バーから判定する
 - TopDamageは、総与ダメージ量でソートした表で自分の固定表示行の直下に同じ自分の行がある場合だけ1、それ以外は0
@@ -176,7 +177,7 @@ Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,T
             </details>
           </section>
           <div class="help-grid">
-            <article><b>1</b><h3>ChatGPTでCSVを作る</h3><p>撮影例に沿った画像と撮影日、上の依頼文をChatGPTへ送り、追加分だけのCSVを作成します。</p></article>
+            <article><b>1</b><h3>ChatGPTでCSVを作る</h3><p>撮影例に沿った画像と上の依頼文をChatGPTへ送り、追加分だけのCSVを作成します。ファイル名に日付がない場合は撮影日も伝えます。</p></article>
             <article><b>2</b><h3>CSVを読み込む</h3><p>データタブの「CSV読み込み」を選択します。初回も追加分も同じ操作で、試合No.は自動で付きます。</p></article>
             <article><b>3</b><h3>内容を確認する</h3><p>ダッシュボードで追加件数と最新戦績を確認し、各分析タブで全期間の傾向を詳しく見ます。</p></article>
             <article><b>4</b><h3>バックアップする</h3><p>定期的にJSONバックアップを保存してください。サイトデータの削除や端末移行に備えられます。</p></article>
@@ -212,11 +213,11 @@ Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,T
     </div>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260722-038"></script>
-  <script src="./assets/js/store.js?v=20260722-038"></script>
-  <script src="./assets/js/analytics.js?v=20260722-038"></script>
-  <script src="./assets/js/charts.js?v=20260722-038"></script>
-  <script src="./assets/js/ui.js?v=20260722-038"></script>
-  <script src="./assets/js/app.js?v=20260722-038"></script>
+  <script src="./assets/js/data.js?v=20260722-039"></script>
+  <script src="./assets/js/store.js?v=20260722-039"></script>
+  <script src="./assets/js/analytics.js?v=20260722-039"></script>
+  <script src="./assets/js/charts.js?v=20260722-039"></script>
+  <script src="./assets/js/ui.js?v=20260722-039"></script>
+  <script src="./assets/js/app.js?v=20260722-039"></script>
 </body>
 </html>
