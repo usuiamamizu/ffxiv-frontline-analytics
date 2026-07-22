@@ -763,13 +763,33 @@ button, .import-button {
   color: var(--muted);
   font-size: 11px;
 }
-.survival-formula {
+.survival-index-guide {
+  display: grid;
+  gap: 6px;
   margin: 0;
   padding: 9px 10px;
   border-bottom: 1px solid rgba(140,95,28,.28);
   color: #d7cda8;
   font-size: 12px;
   line-height: 1.55;
+}
+.survival-index-guide strong {
+  color: #ffe09c;
+}
+.survival-index-guide code {
+  display: block;
+  padding: 4px 6px;
+  border: 1px solid rgba(196, 139, 48, .28);
+  color: #f3d99b;
+  background: rgba(26, 20, 11, .48);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.survival-index-guide span {
+  color: var(--muted);
+  font-size: 11px;
 }
 .survival-index-list {
   gap: 6px;
@@ -1182,7 +1202,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-014") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-015") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
