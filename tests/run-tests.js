@@ -52,6 +52,12 @@ test("Registered match cards provide edit and delete actions", () => {
     && html.includes('data-delete-match="test-1"')
     && html.includes("与ダメージ");
 });
+test("Registered matches are presented as an editable collapsible section", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  return source.includes('<details class="data-record-section">')
+    && source.includes("登録済み戦績の確認・編集・削除")
+    && !source.includes('<div class="csv-guide">');
+});
 test("Registered match manager paginates large datasets", () => {
   const source = fs.readFileSync("assets/js/ui.js", "utf8");
   return /dataPageSize:\s*50/.test(source)
