@@ -83,6 +83,10 @@ test("Small role segments move icons outside the donut", () => {
   return segments.find(segment => segment.id === "tank")?.externalIcon === true
     && segments.find(segment => segment.id === "ranged")?.externalIcon === false;
 });
+test("Map summary values use the shared numeric font", () => {
+  const source = fs.readFileSync("assets/css/styles.css", "utf8");
+  return /\.map-insight-card > b\s*\{[\s\S]*?font-family: var\(--font-numeric\)/.test(source);
+});
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));
 const failed = results.filter(result => !result.ok);
