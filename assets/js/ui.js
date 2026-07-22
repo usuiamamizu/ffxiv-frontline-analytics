@@ -113,24 +113,29 @@ const UI = {
     const topJobSegments = [...usedJobSegments].sort((a, b) => b.value - a.value).slice(0, 5);
     document.querySelector("#summaryDetail").innerHTML = summaryAnalysis(matches, summary);
     document.querySelector("#jobsDetail").innerHTML = `
-      <h3 class="analysis-section-title">ジョブ使用率</h3>
-      <section class="full-job-usage">
-        <canvas id="allJobChart" class="full-job-chart" height="390"></canvas>
-        <div class="full-job-insights">
-          <section class="full-job-panel">
-            <h4>全ジョブ使用状況</h4>
-            <div id="allJobLegend" class="full-job-legend">${fullJobLegend(allJobSegments)}</div>
-          </section>
-          <section class="full-job-panel job-top-five">
-            <h4>使用回数 TOP5</h4>
-            <div class="job-top-five-list">${jobTopFive(topJobSegments)}</div>
-          </section>
-        </div>
+      <section class="job-analysis-section">
+        <h3 class="analysis-section-title">ジョブ使用率</h3>
+        <section class="full-job-usage">
+          <canvas id="allJobChart" class="full-job-chart" height="390"></canvas>
+          <div class="full-job-insights">
+            <section class="full-job-panel">
+              <h4>全ジョブ使用状況</h4>
+              <div id="allJobLegend" class="full-job-legend">${fullJobLegend(allJobSegments)}</div>
+            </section>
+            <section class="full-job-panel job-top-five">
+              <h4>使用回数 TOP5</h4>
+              <div class="job-top-five-list">${jobTopFive(topJobSegments)}</div>
+            </section>
+          </div>
+        </section>
       </section>
       ${roleAnalysis(matches)}
       ${jobPerformanceHighlights(jobStats)}
       ${survivalAnalysis(jobStats)}
-      ${statCards(jobStats, true, false)}
+      <section class="job-analysis-section">
+        <h3 class="analysis-section-title">ジョブ別詳細成績</h3>
+        ${statCards(jobStats, true, false)}
+      </section>
     `;
     document.querySelector("#mapsDetail").innerHTML = statTable(Analytics.mapStats(matches), false, false);
     document.querySelector("#bestsDetail").innerHTML = document.querySelector("#bestRecords").innerHTML;
@@ -182,7 +187,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-011";
+const ASSET_VERSION = "20260722-012";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -233,46 +238,52 @@ function roleAnalysis(matches) {
   });
 
   return `
-    <h3 class="analysis-section-title">ロール使用率 <small>全試合比</small></h3>
-    <section class="role-usage-overview">
-      ${roles.map(role => `
-        <div class="role-overview-row" style="--role-color:${role.color};--usage-width:${role.rate * 100}%">
-          <span class="role-overview-name"><i></i>${role.label}</span>
-          <span class="role-usage-bar"><i></i></span>
-          <span class="role-usage-count">${role.value}戦</span>
-          <strong>${formatPercent(role.rate)}</strong>
-        </div>
-      `).join("")}
-    </section>
-    <h3 class="analysis-section-title">ロール別ジョブ使用率 <small>各ロール内の割合</small></h3>
-    <section class="role-job-grid">
-      ${roles.map(role => `
-        <article class="role-job-panel" style="--role-color:${role.color}">
-          <h4><span><i></i>${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
-          <div class="role-job-list">
-            ${role.jobs.map(job => `
-              <div class="role-job-row${job.value === 0 ? " is-unused" : ""}" style="--usage-width:${job.rate * 100}%">
-                <span class="role-job-icon"><img src="${job.icon}" alt=""></span>
-                <span class="role-job-name">${job.label}</span>
-                <span class="role-usage-bar"><i></i></span>
-                <span class="role-job-count">${job.value}戦</span>
-                <strong>${formatPercent(job.rate)}</strong>
-              </div>
-            `).join("")}
+    <section class="job-analysis-section">
+      <h3 class="analysis-section-title">ロール使用率 <small>全試合比</small></h3>
+      <section class="role-usage-overview">
+        ${roles.map(role => `
+          <div class="role-overview-row" style="--role-color:${role.color};--usage-width:${role.rate * 100}%">
+            <span class="role-overview-name"><i></i>${role.label}</span>
+            <span class="role-usage-bar"><i></i></span>
+            <span class="role-usage-count">${role.value}戦</span>
+            <strong>${formatPercent(role.rate)}</strong>
           </div>
-        </article>
-      `).join("")}
+        `).join("")}
+      </section>
+    </section>
+    <section class="job-analysis-section">
+      <h3 class="analysis-section-title">ロール別ジョブ使用率 <small>各ロール内の割合</small></h3>
+      <section class="role-job-grid">
+        ${roles.map(role => `
+          <article class="role-job-panel" style="--role-color:${role.color}">
+            <h4><span><i></i>${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
+            <div class="role-job-list">
+              ${role.jobs.map(job => `
+                <div class="role-job-row${job.value === 0 ? " is-unused" : ""}" style="--usage-width:${job.rate * 100}%">
+                  <span class="role-job-icon"><img src="${job.icon}" alt=""></span>
+                  <span class="role-job-name">${job.label}</span>
+                  <span class="role-usage-bar"><i></i></span>
+                  <span class="role-job-count">${job.value}戦</span>
+                  <strong>${formatPercent(job.rate)}</strong>
+                </div>
+              `).join("")}
+            </div>
+          </article>
+        `).join("")}
+      </section>
     </section>
   `;
 }
 
 function jobPerformanceHighlights(stats) {
   return `
-    <h3 class="analysis-section-title">ジョブ実績 TOP3 <small>1～2試合は参考値</small></h3>
-    <section class="job-performance-grid">
-      ${jobPerformancePanel("1位率 TOP3", stats, stat => safeRate(stat.firsts, stat.matches), "percent")}
-      ${jobPerformancePanel("平均与ダメージ TOP3", stats, stat => stat.avgDamage, "number")}
-      ${jobPerformancePanel("平均Assist TOP3", stats, stat => stat.avgAssists, "decimal")}
+    <section class="job-analysis-section">
+      <h3 class="analysis-section-title">ジョブ実績 TOP3 <small>1～2試合は参考値</small></h3>
+      <section class="job-performance-grid">
+        ${jobPerformancePanel("1位率 TOP3", stats, stat => safeRate(stat.firsts, stat.matches), "percent")}
+        ${jobPerformancePanel("平均与ダメージ TOP3", stats, stat => stat.avgDamage, "number")}
+        ${jobPerformancePanel("平均Assist TOP3", stats, stat => stat.avgAssists, "decimal")}
+      </section>
     </section>
   `;
 }
@@ -335,21 +346,23 @@ function survivalAnalysis(stats) {
     .sort((a, b) => b.survivalIndex - a.survivalIndex || b.matches - a.matches)
     .slice(0, 3);
   return `
-    <h3 class="analysis-section-title">被ダメージとDownの関係 <small>右上ほど高被ダメージ・低Down</small></h3>
-    <section class="survival-analysis-grid">
-      <article class="survival-scatter-panel">
-        <h4>平均被ダメージ × 平均Down</h4>
-        <canvas id="survivalScatterChart" height="520"></canvas>
-        <p>破線は全試合平均。1～2試合のジョブは半透明で表示します。</p>
-      </article>
-      <article class="survival-index-panel">
-        <h4>被ダメ生存指数 TOP3</h4>
-        <p class="survival-formula">被ダメ／生存機会を全試合平均＝100として指数化</p>
-        <ol class="ranking-list survival-index-list">
-          ${top.length ? top.map((point, index) => survivalIndexRow(point, index)).join("") : `<li class="empty-row">データなし</li>`}
-        </ol>
-        <p class="survival-index-note">高いほど、多くの被ダメージを受けながらDownを抑えています。</p>
-      </article>
+    <section class="job-analysis-section">
+      <h3 class="analysis-section-title">被ダメージとDownの関係 <small>右上ほど高被ダメージ・低Down</small></h3>
+      <section class="survival-analysis-grid">
+        <article class="survival-scatter-panel">
+          <h4>平均被ダメージ × 平均Down</h4>
+          <canvas id="survivalScatterChart" height="520"></canvas>
+          <p>破線は全試合平均。1～2試合のジョブは半透明で表示します。</p>
+        </article>
+        <article class="survival-index-panel">
+          <h4>被ダメ生存指数 TOP3</h4>
+          <p class="survival-formula">被ダメ／生存機会を全試合平均＝100として指数化</p>
+          <ol class="ranking-list survival-index-list">
+            ${top.length ? top.map((point, index) => survivalIndexRow(point, index)).join("") : `<li class="empty-row">データなし</li>`}
+          </ol>
+          <p class="survival-index-note">高いほど、多くの被ダメージを受けながらDownを抑えています。</p>
+        </article>
+      </section>
     </section>
   `;
 }

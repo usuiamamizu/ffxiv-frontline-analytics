@@ -419,6 +419,23 @@ button, .import-button {
   padding: 8px 14px 14px;
   min-height: 500px;
 }
+.job-analysis-section {
+  min-width: 0;
+  margin: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(196, 139, 48, .72);
+  background: linear-gradient(180deg, rgba(5, 22, 28, .7), rgba(1, 10, 14, .42));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 218, 137, .05),
+    0 3px 12px rgba(0, 0, 0, .18);
+}
+.job-analysis-section > .analysis-section-title {
+  margin: 0;
+  padding: 8px 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(196, 139, 48, .58);
+  background: linear-gradient(90deg, rgba(54, 43, 23, .76), rgba(4, 16, 20, .42));
+}
 .analysis-section-title {
   margin: 14px 14px 0;
   padding: 6px 12px;
@@ -1165,7 +1182,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-011") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-012") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1795,6 +1812,7 @@ tbody tr:hover td {
   .job-usage-layout { grid-template-columns: 1fr; }
   .usage-list { padding: 0 10px; }
   .full-job-legend { grid-template-columns: 1fr; }
+  .job-analysis-section { margin: 8px; }
   .role-usage-overview { grid-template-columns: 1fr; }
   .survival-analysis-grid { grid-template-columns: 1fr; }
   .survival-scatter-panel canvas {
