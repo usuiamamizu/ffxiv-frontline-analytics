@@ -154,6 +154,13 @@ const UI = {
       Charts.drawDonut(allJobChart, buildAllJobUsageSegments(Analytics.jobStats(matches), matches.length), "", { legend: false, icons: true });
     }
 
+    buildRoleAnalysisData(matches).forEach(role => {
+      const canvas = document.querySelector(`#roleJobChart-${role.id}`);
+      if (canvas && canvas.getBoundingClientRect().width > 0) {
+        Charts.drawDonut(canvas, roleJobDonutSegments(role), "", { legend: false, icons: true });
+      }
+    });
+
     const survivalScatterChart = document.querySelector("#survivalScatterChart");
     if (survivalScatterChart && survivalScatterChart.getBoundingClientRect().width > 0) {
       const survivalMetrics = buildSurvivalMetrics(Analytics.jobStats(matches));
@@ -196,7 +203,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-018";
+const ASSET_VERSION = "20260722-019";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -225,39 +232,26 @@ function buildRoleUsageSegments(matches) {
 }
 
 function roleAnalysis(matches) {
-  const totalMatches = matches.length;
-  const roles = ROLE_DEFS.map(role => {
-    const roleMatches = matches.filter(match => role.jobs.includes(match.job));
-    const jobRows = role.jobs.map(jobId => {
-      const value = roleMatches.filter(match => match.job === jobId).length;
-      return {
-        id: jobId,
-        label: jobName(jobId),
-        icon: jobIconSource(jobId),
-        value,
-        rate: roleMatches.length ? value / roleMatches.length : 0
-      };
-    }).sort((a, b) => b.value - a.value);
-    return {
-      ...role,
-      value: roleMatches.length,
-      rate: totalMatches ? roleMatches.length / totalMatches : 0,
-      jobs: jobRows
-    };
-  });
+  const roles = buildRoleAnalysisData(matches);
 
   return `
     <section class="job-analysis-section">
       <h3 class="analysis-section-title">ロール使用率 <small>全試合比</small></h3>
       <section class="role-usage-overview">
-        ${roles.map(role => `
-          <div class="role-overview-row" style="--role-color:${role.color};--usage-width:${role.rate * 100}%">
-            <span class="role-overview-name"><i></i>${role.label}</span>
-            <span class="role-usage-bar"><i></i></span>
-            <span class="role-usage-count">${role.value}戦</span>
-            <strong>${formatPercent(role.rate)}</strong>
-          </div>
-        `).join("")}
+        <div class="role-stacked-bar" aria-label="ロール使用率">
+          ${roles.filter(role => role.value > 0).map(role => `
+            <span style="--role-color:${role.color};--role-width:${role.rate * 100}%" title="${role.label} ${formatPercent(role.rate)}"></span>
+          `).join("")}
+        </div>
+        <div class="role-stacked-legend">
+          ${roles.map(role => `
+            <div style="--role-color:${role.color}">
+              <span class="role-overview-name"><i></i>${role.label}</span>
+              <span class="role-usage-count">${role.value}戦</span>
+              <strong>${formatPercent(role.rate)}</strong>
+            </div>
+          `).join("")}
+        </div>
       </section>
     </section>
     <section class="job-analysis-section">
@@ -266,22 +260,55 @@ function roleAnalysis(matches) {
         ${roles.map(role => `
           <article class="role-job-panel" style="--role-color:${role.color}">
             <h4><span><i></i>${role.label}</span><small>${role.value}戦 / 全体 ${formatPercent(role.rate)}</small></h4>
-            <div class="role-job-list">
+            <div class="role-job-donut-layout">
+              <canvas id="roleJobChart-${role.id}" class="role-job-donut" height="250"></canvas>
+              <div class="role-job-donut-legend">
               ${role.jobs.map(job => `
-                <div class="role-job-row${job.value === 0 ? " is-unused" : ""}" style="--usage-width:${job.rate * 100}%">
+                <div class="role-job-donut-row${job.value === 0 ? " is-unused" : ""}" style="--job-color:${job.color}">
                   <span class="role-job-icon"><img src="${job.icon}" alt=""></span>
                   <span class="role-job-name">${job.label}</span>
-                  <span class="role-usage-bar"><i></i></span>
                   <span class="role-job-count">${job.value}戦</span>
                   <strong>${formatPercent(job.rate)}</strong>
                 </div>
               `).join("")}
+              </div>
             </div>
           </article>
         `).join("")}
       </section>
     </section>
   `;
+}
+
+function buildRoleAnalysisData(matches) {
+  const totalMatches = matches.length;
+  return ROLE_DEFS.map(role => {
+    const roleMatches = matches.filter(match => role.jobs.includes(match.job));
+    const jobs = role.jobs.map(jobId => {
+      const value = roleMatches.filter(match => match.job === jobId).length;
+      const colorIndex = Math.max(0, FFXIV_DATA.jobs.findIndex(job => job.id === jobId));
+      return {
+        id: jobId,
+        label: jobName(jobId),
+        icon: jobIconSource(jobId),
+        color: JOB_COLORS[colorIndex % JOB_COLORS.length],
+        value,
+        rate: roleMatches.length ? value / roleMatches.length : 0
+      };
+    }).sort((a, b) => b.value - a.value);
+    return {
+      ...role,
+      value: roleMatches.length,
+      rate: totalMatches ? roleMatches.length / totalMatches : 0,
+      jobs
+    };
+  });
+}
+
+function roleJobDonutSegments(role) {
+  return role.jobs
+    .filter(job => job.value > 0)
+    .map(job => ({ label: job.label, value: job.value, color: job.color, icon: job.icon }));
 }
 
 function jobPerformanceHighlights(stats) {

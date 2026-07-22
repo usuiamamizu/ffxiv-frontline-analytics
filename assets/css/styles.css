@@ -587,20 +587,41 @@ button, .import-button {
 }
 .role-usage-overview {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
   margin: 8px 14px 14px;
   padding: 10px;
   border: 1px solid rgba(140,95,28,.52);
   background: rgba(1, 9, 12, .2);
 }
-.role-overview-row {
-  display: grid;
-  grid-template-columns: minmax(86px, 118px) minmax(70px, 1fr) 44px 54px;
-  align-items: center;
-  gap: 8px;
+.role-stacked-bar {
+  display: flex;
+  width: 100%;
+  height: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(196,139,48,.58);
+  background: rgba(0, 0, 0, .48);
+  box-shadow: inset 0 0 0 1px rgba(255, 218, 137, .06);
+}
+.role-stacked-bar span {
+  display: block;
+  flex: 0 0 var(--role-width);
   min-width: 0;
-  min-height: 42px;
+  height: 100%;
+  background: var(--role-color);
+  box-shadow: inset -1px 0 rgba(0, 0, 0, .42);
+}
+.role-stacked-legend {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.role-stacked-legend > div {
+  display: grid;
+  grid-template-columns: minmax(76px, 1fr) auto auto;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 38px;
   padding: 5px 8px;
   border: 1px solid rgba(140,95,28,.42);
   background: rgba(0, 0, 0, .2);
@@ -623,22 +644,10 @@ button, .import-button {
   height: 10px;
   background: var(--role-color);
 }
-.role-usage-bar {
-  height: 10px;
-  overflow: hidden;
-  border: 1px solid rgba(196,139,48,.45);
-  background: rgba(0, 0, 0, .48);
-}
-.role-usage-bar i {
-  display: block;
-  width: var(--usage-width);
-  height: 100%;
-  background: var(--role-color);
-}
 .role-usage-count,
-.role-overview-row strong,
+.role-stacked-legend strong,
 .role-job-count,
-.role-job-row strong {
+.role-job-donut-row strong {
   color: var(--gold-bright);
   text-align: right;
   white-space: nowrap;
@@ -677,30 +686,43 @@ button, .import-button {
   font-weight: 500;
   white-space: nowrap;
 }
-.role-job-list {
+.role-job-donut-layout {
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(190px, .85fr) minmax(210px, 1.15fr);
+  align-items: center;
+  gap: 8px;
   padding: 8px;
 }
-.role-job-row {
+.role-job-donut {
+  width: 100%;
+  height: 250px;
+  min-height: 250px;
+}
+.role-job-donut-legend {
   display: grid;
-  grid-template-columns: 34px minmax(82px, 120px) minmax(58px, 1fr) 42px 50px;
-  align-items: center;
-  gap: 7px;
+  gap: 5px;
   min-width: 0;
-  min-height: 40px;
-  padding: 3px 7px;
+}
+.role-job-donut-row {
+  display: grid;
+  grid-template-columns: 30px minmax(72px, 1fr) 40px 48px;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 2px 6px;
   border: 1px solid rgba(140,95,28,.38);
+  border-left: 3px solid var(--job-color);
   background: rgba(0, 0, 0, .18);
 }
-.role-job-row.is-unused {
+.role-job-donut-row.is-unused {
   opacity: .4;
 }
 .role-job-icon,
 .role-job-icon img {
   display: block;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 .role-job-icon img {
   object-fit: contain;
@@ -1202,7 +1224,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-018") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-019") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -2094,7 +2116,12 @@ tbody tr:hover td {
   .usage-list { padding: 0 10px; }
   .full-job-legend { grid-template-columns: 1fr; }
   .job-analysis-section { margin: 8px; }
-  .role-usage-overview { grid-template-columns: 1fr; }
+  .role-stacked-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .role-job-donut-layout { grid-template-columns: 1fr; }
+  .role-job-donut {
+    height: 230px;
+    min-height: 230px;
+  }
   .summary-rank-layout { grid-template-columns: 1fr; }
   .summary-rank-layout canvas {
     height: 230px;
