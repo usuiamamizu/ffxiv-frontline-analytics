@@ -128,6 +128,7 @@ const UI = {
         </div>
       </section>
       ${roleAnalysis(matches)}
+      ${jobPerformanceHighlights(jobStats)}
       ${statCards(jobStats, true, false)}
     `;
     document.querySelector("#mapsDetail").innerHTML = statTable(Analytics.mapStats(matches), false, false);
@@ -171,7 +172,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-008";
+const ASSET_VERSION = "20260722-009";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -252,6 +253,43 @@ function roleAnalysis(matches) {
         </article>
       `).join("")}
     </section>
+  `;
+}
+
+function jobPerformanceHighlights(stats) {
+  return `
+    <h3 class="analysis-section-title">ジョブ実績 TOP3 <small>1～2試合は参考値</small></h3>
+    <section class="job-performance-grid">
+      ${jobPerformancePanel("1位率 TOP3", stats, stat => safeRate(stat.firsts, stat.matches), "percent")}
+      ${jobPerformancePanel("平均与ダメージ TOP3", stats, stat => stat.avgDamage, "number")}
+      ${jobPerformancePanel("平均Assist TOP3", stats, stat => stat.avgAssists, "decimal")}
+    </section>
+  `;
+}
+
+function jobPerformancePanel(title, stats, selector, type) {
+  const rows = [...stats]
+    .map(stat => ({ ...stat, rankingValue: selector(stat) }))
+    .sort((a, b) => b.rankingValue - a.rankingValue || b.matches - a.matches)
+    .slice(0, 3);
+  return `
+    <article class="ranking-panel job-performance-panel">
+      <h4>${title}</h4>
+      <ol class="ranking-list">
+        ${rows.length ? rows.map((stat, index) => jobPerformanceRow(stat, index, type)).join("") : `<li class="empty-row">データなし</li>`}
+      </ol>
+    </article>
+  `;
+}
+
+function jobPerformanceRow(stat, index, type) {
+  return `
+    <li>
+      <span class="ranking-order">${index + 1}</span>
+      <span class="ranking-name">${jobIcon(stat.id)}<b>${jobName(stat.id)}</b>${stat.matches < 3 ? `<small>参考値</small>` : ""}</span>
+      <strong>${formatTypedValue(stat.rankingValue, type)}</strong>
+      <em>${stat.matches}戦</em>
+    </li>
   `;
 }
 

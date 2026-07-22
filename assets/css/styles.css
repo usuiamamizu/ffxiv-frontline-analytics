@@ -696,6 +696,23 @@ button, .import-button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.job-performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 10px;
+  margin: 8px 14px 14px;
+}
+.job-performance-panel .ranking-list li {
+  min-height: 52px;
+}
+.job-performance-panel .ranking-name .job-icon {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-right: 0;
+  border: 0;
+  background: transparent;
+}
 canvas {
   display: block;
   width: 100%;
@@ -1079,7 +1096,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-008") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-009") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
