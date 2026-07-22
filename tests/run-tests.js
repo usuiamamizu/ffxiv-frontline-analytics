@@ -87,6 +87,23 @@ test("Map summary values use the shared numeric font", () => {
   const source = fs.readFileSync("assets/css/styles.css", "utf8");
   return /\.map-insight-card > b\s*\{[\s\S]*?font-family: var\(--font-numeric\)/.test(source);
 });
+test("Map names match the official Lodestone titles", () => {
+  return JSON.stringify(context.testData.maps) === JSON.stringify([
+    "外縁遺跡群 (制圧戦)",
+    "シールロック (争奪戦)",
+    "フィールド・オブ・グローリー (砕氷戦)",
+    "オンサル・ハカイル (終節戦)",
+    "ウォーコー・チーテ (演習戦)"
+  ]);
+});
+test("Legacy map names normalize to official titles", () => {
+  const sealRock = parse(row({ map: "シールロック" }))[0].map;
+  const borderland = context.testImport.normalizeJsonMatches([match({ map: "外縁遺跡群" })])[0].map;
+  const worqor = parse(row({ map: "ウォーコー・チーテ（演習戦）" }))[0].map;
+  return sealRock === "シールロック (争奪戦)"
+    && borderland === "外縁遺跡群 (制圧戦)"
+    && worqor === "ウォーコー・チーテ (演習戦)";
+});
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));
 const failed = results.filter(result => !result.ok);

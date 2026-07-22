@@ -136,7 +136,7 @@ const App = {
     });
     document.querySelector("#downloadCsvTemplate").addEventListener("click", () => {
       const header = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage\n";
-      const sample = "2026-07-04,20:03,ウォーコー・チーテ（演習戦）,不滅隊,3,踊り子,6,0,37,886484,465756,807903,1\n";
+      const sample = "2026-07-04,20:03,ウォーコー・チーテ (演習戦),不滅隊,3,踊り子,6,0,37,886484,465756,807903,1\n";
       downloadText("ffxiv-frontline-chatgpt-template.csv", header + sample, "text/csv");
     });
     document.querySelector("#exportJson").addEventListener("click", () => {
@@ -475,12 +475,16 @@ function isRealDate(value) {
 
 function resolveMap(value) {
   const aliases = {
-    シールロック争奪戦: "シールロック",
-    フィールドオブグローリー砕氷戦: "フィールド・オブ・グローリー",
-    オンサルハカイル終節戦: "オンサル・ハカイル",
-    外縁遺跡群制圧戦: "外縁遺跡群",
-    ウォーコーチーテ: "ウォーコー・チーテ（演習戦）",
-    ウォーコーチーテ演習戦: "ウォーコー・チーテ（演習戦）"
+    外縁遺跡群: "外縁遺跡群 (制圧戦)",
+    外縁遺跡群制圧戦: "外縁遺跡群 (制圧戦)",
+    シールロック: "シールロック (争奪戦)",
+    シールロック争奪戦: "シールロック (争奪戦)",
+    フィールドオブグローリー: "フィールド・オブ・グローリー (砕氷戦)",
+    フィールドオブグローリー砕氷戦: "フィールド・オブ・グローリー (砕氷戦)",
+    オンサルハカイル: "オンサル・ハカイル (終節戦)",
+    オンサルハカイル終節戦: "オンサル・ハカイル (終節戦)",
+    ウォーコーチーテ: "ウォーコー・チーテ (演習戦)",
+    ウォーコーチーテ演習戦: "ウォーコー・チーテ (演習戦)"
   };
   const key = normalizeLookupKey(value);
   if (!key) return "";
