@@ -157,7 +157,7 @@ const UI = {
     const activePanel = document.querySelector(".tab-panel.active")?.id || "dashboard";
     if (activePanel === "dashboard") {
       const roleSegments = buildRoleUsageSegments(matches);
-      Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "ロール", { legend: false });
+      Charts.drawDonut(document.querySelector("#roleChart"), roleSegments, "", { legend: false, icons: true });
       this.roleUsageList(roleSegments);
 
       const jobSegments = buildJobUsageSegments(Analytics.jobStats(matches), matches.length);
@@ -215,7 +215,8 @@ const UI = {
   },
   roleUsageList(segments) {
     document.querySelector("#roleUsageList").innerHTML = segments.map(segment => `
-      <div class="usage-row" title="${escapeHtml(segment.label)}">
+      <div class="usage-row role-usage-row" title="${escapeHtml(segment.label)}">
+        <i class="role-color-key" style="--role-accent:${segment.color}" aria-hidden="true"></i>
         ${roleIcon(segment.id)}
         <span class="usage-name">${escapeHtml(segment.label)}</span>
         <span class="usage-percent">${formatPercent(segment.rate)}</span>
@@ -224,7 +225,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-030";
+const ASSET_VERSION = "20260722-031";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -249,7 +250,9 @@ function buildRoleUsageSegments(matches) {
       id: role.id,
       value,
       rate: value / total,
-      color: role.color
+      color: role.color,
+      icon: roleIconSource(role),
+      badge: roleBadge(role.id)
     };
   });
 }
@@ -530,7 +533,14 @@ function jobIconSource(id) {
 function roleIcon(id) {
   const role = ROLE_DEFS.find(item => item.id === id);
   if (!role?.icon) return "";
-  return `<span class="role-icon" style="--role-accent:${role.color}" aria-hidden="true"><img src="./assets/role-icons/${role.icon}?v=${ASSET_VERSION}" alt=""></span>`;
+  const badge = roleBadge(role.id);
+  return `<span class="role-icon" style="--role-accent:${role.color}" aria-hidden="true"><img src="${roleIconSource(role)}" alt="">${badge ? `<small class="role-icon-badge">${badge}</small>` : ""}</span>`;
+}
+function roleIconSource(role) {
+  return `./assets/role-icons/${role.icon}?v=${ASSET_VERSION}`;
+}
+function roleBadge(id) {
+  return id === "melee" ? "近" : id === "ranged" ? "遠" : "";
 }
 function jobSprite(id) {
   const job = FFXIV_DATA.jobs.find(item => item.id === id);

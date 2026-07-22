@@ -2998,22 +2998,57 @@ button:focus-visible,
   border-bottom: 1px solid rgba(165, 119, 44, .22);
   font-size: var(--font-body);
 }
+.role-usage-row {
+  grid-template-columns: 5px 32px minmax(0, 1fr) 58px;
+}
+.role-color-key {
+  display: block;
+  width: 5px;
+  height: 25px;
+  border-radius: 1px;
+  background: var(--role-accent);
+  box-shadow: 0 0 5px rgba(216, 163, 58, .18);
+}
 .usage-name { font-weight: 700; }
 .usage-percent { font-size: 13px; font-weight: 800; }
 .usage-swatch { width: 13px; height: 13px; }
 .role-icon {
+  position: relative;
   display: inline-grid;
   place-items: center;
   flex: 0 0 30px;
   width: 30px;
   height: 30px;
-  border-left: 3px solid var(--role-accent);
 }
 .role-icon img {
   display: block;
   width: 27px;
   height: 27px;
   object-fit: contain;
+}
+.role-icon-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d8a33a;
+  border-radius: 2px;
+  color: #ffe7a4;
+  background: #071014;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+.role-stacked-legend > div {
+  border-left: 5px solid var(--role-color);
+}
+.role-job-panel {
+  border-top: 3px solid var(--role-color);
 }
 
 .latest-panel,

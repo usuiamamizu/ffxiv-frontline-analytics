@@ -14,7 +14,7 @@ vm.createContext(context);
 runScript("assets/js/data.js", "this.testData = FFXIV_DATA;");
 runScript("assets/js/analytics.js", "this.testAnalytics = Analytics;");
 runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches };");
-runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis };");
+runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis, buildRoleUsageSegments, roleBadge };");
 
 const header = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage";
 const [mapA, mapB] = context.testData.maps;
@@ -59,6 +59,17 @@ test("Best records link to match details", () => {
 test("Match details escape imported text", () => {
   const html = context.testUi.matchDetailContent(match({ map: `<img src=x>` }));
   return !html.includes("<img src=x>") && html.includes("&lt;img src=x&gt;");
+});
+test("Role usage distinguishes melee and ranged DPS", () => {
+  const segments = context.testUi.buildRoleUsageSegments([]);
+  const melee = segments.find(segment => segment.id === "melee");
+  const ranged = segments.find(segment => segment.id === "ranged");
+  return melee.badge === "近" && ranged.badge === "遠"
+    && melee.icon.includes("DPSRole.png") && ranged.icon.includes("DPSRole.png");
+});
+test("Role donut uses icons without center text", () => {
+  const source = fs.readFileSync("assets/js/ui.js", "utf8");
+  return /#roleChart"\), roleSegments, "", \{ legend: false, icons: true \}/.test(source);
 });
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));

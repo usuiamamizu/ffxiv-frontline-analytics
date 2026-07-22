@@ -285,10 +285,27 @@ function drawDonutIcons(ctx, segments, geometry) {
     image.onload = () => {
       ctx.save();
       ctx.drawImage(image, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+      if (item.badge) drawDonutIconBadge(ctx, x, y, iconSize, item.badge);
       ctx.restore();
     };
     image.src = item.icon;
   });
+}
+
+function drawDonutIconBadge(ctx, x, y, iconSize, badge) {
+  const size = Math.max(14, Math.round(iconSize * .42));
+  const left = x + iconSize / 2 - size * .78;
+  const top = y + iconSize / 2 - size * .78;
+  ctx.fillStyle = "rgba(3, 12, 16, .96)";
+  ctx.strokeStyle = "#e0ad51";
+  ctx.lineWidth = 1.5;
+  ctx.fillRect(left, top, size, size);
+  ctx.strokeRect(left + .75, top + .75, size - 1.5, size - 1.5);
+  ctx.fillStyle = "#ffe7a4";
+  ctx.font = `700 ${Math.max(10, Math.round(size * .68))}px "Yu Mincho", serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(badge, left + size / 2, top + size / 2 + .5);
 }
 
 function setupCanvas(canvas) {
