@@ -13,7 +13,7 @@ const context = {
 vm.createContext(context);
 runScript("assets/js/data.js", "this.testData = FFXIV_DATA;");
 runScript("assets/js/analytics.js", "this.testAnalytics = Analytics;");
-runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches };");
+runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches, extractPastedCsv };");
 runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis, buildRoleUsageSegments, roleBadge, dataRecordCard };");
 
 const header = "Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage";
@@ -60,6 +60,13 @@ test("Screenshot prompt protects map, rank, and top damage decisions", () => {
     && prompt.includes("自分のDamageと最大Damageが同じ場合だけTopDamageを1にする")
     && prompt.includes("1画像につき1行だけ出力してください");
 });
+test("Screenshot prompt requests a downloadable CSV with a text fallback", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  const prompt = source.match(/id="chatGptPromptText">([\s\S]*?)<\/pre>/)?.[1] || "";
+  return prompt.includes("Frontline_BattleData.csv")
+    && prompt.includes("ダウンロードできる添付ファイルとして返してください")
+    && prompt.includes("CSVファイルを添付できない場合のみ、同じ内容をCSVコードブロックで出力してください");
+});
 test("Screenshot guide supports zoom and privacy guidance", () => {
   const source = fs.readFileSync("index.html", "utf8");
   return source.includes('id="guideImageDialog"')
@@ -87,6 +94,16 @@ test("Obsolete ChatGPT CSV template is removed", () => {
   return !html.includes("ChatGPT用CSVテンプレート")
     && !html.includes('id="downloadCsvTemplate"')
     && !app.includes("downloadCsvTemplate");
+});
+test("Data tab accepts pasted CSV text and fenced CSV blocks", () => {
+  const html = fs.readFileSync("index.html", "utf8");
+  const fenced = `説明です\n\`\`\`csv\n${header}\n${row()}\n\`\`\``;
+  const extracted = context.testImport.extractPastedCsv(fenced);
+  const parsed = context.testImport.parseMatchesCsv(extracted);
+  return html.includes('id="pasteCsvText"')
+    && html.includes('id="importCsvText"')
+    && extracted.startsWith(header)
+    && parsed.length === 1;
 });
 test("Registered match cards provide edit and delete actions", () => {
   const html = context.testUi.dataRecordCard(match());

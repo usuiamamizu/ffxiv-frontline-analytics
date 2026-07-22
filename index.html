@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260723-048">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260723-049">
 </head>
 <body>
   <div class="app-shell">
@@ -114,6 +114,14 @@
             <button id="clearData" type="button">全データ削除</button>
           </div>
           <div id="csvStatus" class="import-status" role="status" aria-live="polite">初回登録も追加登録も「CSV読み込み」を使用します。登録済みの試合は自動的に除外されます。</div>
+          <details class="csv-paste-section">
+            <summary><span>CSVファイルが作成されなかった場合</span><strong>CSVテキストを貼り付けて読み込む</strong><i aria-hidden="true"></i></summary>
+            <div class="csv-paste-body">
+              <label for="pasteCsvText">ChatGPTが出力したCSVコードブロック、またはCSV本文を貼り付けてください。</label>
+              <textarea id="pasteCsvText" rows="7" spellcheck="false" placeholder="Date,Time,Map,GrandCompany,Rank,Job,KO,Down,Assists,Damage,DamageTaken,Healing,TopDamage"></textarea>
+              <div><p>先頭と末尾の ```csv は付いたままでも読み込めます。</p><button id="importCsvText" type="button" class="primary">貼り付けたCSVを読み込む</button></div>
+            </div>
+          </details>
           <p class="muted">データはこのブラウザ内（IndexedDB）に保存され、CSV読み込み時に試合No.を自動採番します。サイトデータの削除や端末変更に備えて、定期的にJSONバックアップを保存してください。</p>
           <aside class="csv-help-link" aria-labelledby="csvHelpTitle">
             <div><strong id="csvHelpTitle">CSVの作り方が分からない方へ</strong><span>フロントラインの戦績スクリーンショットから、ChatGPTを使ってCSVを作成できます。</span></div>
@@ -386,15 +394,19 @@ Job
 並べ替え一覧先頭のDamage
 TopDamage
 
-確認表を作成した後、同じ内容でUTF-8形式のCSVファイルを作成してください。
+確認表を作成した後、同じ内容でCSVデータを作成してください。
+
+CSVコードを回答本文に表示するだけではなく、UTF-8形式のCSVファイルとして作成し、「Frontline_BattleData.csv」というファイル名で、ダウンロードできる添付ファイルとして返してください。
 
 CSVの数値には桁区切りのカンマを入れないでください。
-1画像につき1行だけ出力してください。</pre>
+1画像につき1行だけ出力してください。
+
+CSVファイルを添付できない場合のみ、同じ内容をCSVコードブロックで出力してください。</pre>
             </details>
           </section>
           <div class="help-grid">
             <article><b>1</b><h3>画像と依頼文を送る</h3><p>上の大きな「ChatGPTへの依頼文を開く」ボタンから文章をコピーし、撮影した画像と一緒にChatGPTへ送ります。</p></article>
-            <article><b>2</b><h3>CSVを読み込む</h3><p>データタブの「CSV読み込み」を選択します。初回も追加分も同じ操作で、試合No.は自動で付きます。</p></article>
+            <article><b>2</b><h3>CSVを読み込む</h3><p>CSVファイルは「CSV読み込み」から登録します。ファイルが作成されなかった場合は、ChatGPTのCSVテキストをデータタブへ貼り付けて読み込みます。</p></article>
             <article><b>3</b><h3>内容を確認する</h3><p>ダッシュボードで追加件数と最新戦績を確認し、各分析タブで全期間の傾向を詳しく見ます。</p></article>
             <article><b>4</b><h3>バックアップする</h3><p>定期的にJSONバックアップを保存してください。サイトデータの削除や端末移行に備えられます。</p></article>
           </div>
@@ -472,11 +484,11 @@ CSVの数値には桁区切りのカンマを入れないでください。
     </form>
   </dialog>
 
-  <script src="./assets/js/data.js?v=20260723-048"></script>
-  <script src="./assets/js/store.js?v=20260723-048"></script>
-  <script src="./assets/js/analytics.js?v=20260723-048"></script>
-  <script src="./assets/js/charts.js?v=20260723-048"></script>
-  <script src="./assets/js/ui.js?v=20260723-048"></script>
-  <script src="./assets/js/app.js?v=20260723-048"></script>
+  <script src="./assets/js/data.js?v=20260723-049"></script>
+  <script src="./assets/js/store.js?v=20260723-049"></script>
+  <script src="./assets/js/analytics.js?v=20260723-049"></script>
+  <script src="./assets/js/charts.js?v=20260723-049"></script>
+  <script src="./assets/js/ui.js?v=20260723-049"></script>
+  <script src="./assets/js/app.js?v=20260723-049"></script>
 </body>
 </html>

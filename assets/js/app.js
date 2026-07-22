@@ -238,6 +238,18 @@ const App = {
     document.querySelector("#dataEditStatus").textContent = "";
     dialog.showModal();
   },
+  async importCsvContent(content, sourceLabel = "CSV") {
+    if (this.storageIssues.length) {
+      throw new Error("保存済みデータに問題があるため追加できません。先にJSONバックアップを保存し、正常なJSONを復元してください。");
+    }
+    const imported = parseMatchesCsv(content);
+    const result = mergeImportedMatches(this.state.matches, imported);
+    await Store.add(result.addedMatches);
+    this.state.matches = result.matches;
+    this.rawMatches = result.matches;
+    UI.render(this.state);
+    setCsvStatus(`${sourceLabel}読み込み完了：${result.added}件追加 / ${result.skipped}件重複を除外。合計${this.state.matches.length}件です。`);
+  },
   bindDataActions() {
     document.querySelector("#importCsv").addEventListener("change", event => {
       const file = event.target.files[0];
@@ -245,16 +257,7 @@ const App = {
       const reader = new FileReader();
       reader.onload = async () => {
         try {
-          if (this.storageIssues.length) {
-            throw new Error("保存済みデータに問題があるため追加できません。先にJSONバックアップを保存し、正常なJSONを復元してください。");
-          }
-          const imported = parseMatchesCsv(reader.result);
-          const result = mergeImportedMatches(this.state.matches, imported);
-          await Store.add(result.addedMatches);
-          this.state.matches = result.matches;
-          this.rawMatches = result.matches;
-          UI.render(this.state);
-          setCsvStatus(`CSV読み込み完了：${result.added}件追加 / ${result.skipped}件重複を除外。合計${this.state.matches.length}件です。`);
+          await this.importCsvContent(reader.result);
         } catch (error) {
           setCsvStatus(error.message || "CSVの読み込みに失敗しました。");
         } finally {
@@ -262,6 +265,21 @@ const App = {
         }
       };
       reader.readAsText(file, "utf-8");
+    });
+    document.querySelector("#importCsvText")?.addEventListener("click", async () => {
+      const textarea = document.querySelector("#pasteCsvText");
+      const csvText = extractPastedCsv(textarea?.value);
+      if (!csvText) {
+        setCsvStatus("読み込むCSVテキストを貼り付けてください。");
+        textarea?.focus();
+        return;
+      }
+      try {
+        await this.importCsvContent(csvText, "CSVテキスト");
+        textarea.value = "";
+      } catch (error) {
+        setCsvStatus(error.message || "CSVテキストの読み込みに失敗しました。");
+      }
     });
     document.querySelector("#copyChatGptPrompt")?.addEventListener("click", async () => {
       const prompt = document.querySelector("#chatGptPromptText")?.textContent.trim();
@@ -613,6 +631,13 @@ function normalizeHeader(header) {
 
 function cleanCell(value) {
   return String(value ?? "").trim();
+}
+
+function extractPastedCsv(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  const fencedBlock = text.match(/```(?:csv)?\s*([\s\S]*?)```/i);
+  return (fencedBlock?.[1] || text).trim();
 }
 
 function normalizeDate(value) {
