@@ -65,7 +65,9 @@ test("Screenshot guide supports zoom and privacy guidance", () => {
   return source.includes('id="guideImageDialog"')
     && source.includes("画像をタップして拡大")
     && source.includes("スクリーンショットの取り扱いについて")
-    && source.includes("1枚＝1試合・複数試合まとめて送信可能");
+    && source.includes("1枚＝1試合・複数試合まとめて送信可能")
+    && source.includes("戦績ウィンドウの拡縮は140％を推奨します")
+    && source.includes("画面に収まらない場合は120％程度まで下げます");
 });
 test("Data tab links directly to the screenshot guide", () => {
   const source = fs.readFileSync("index.html", "utf8");
