@@ -1182,7 +1182,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-013") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-014") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1530,6 +1530,35 @@ tbody tr:hover td {
 .analysis-average-card strong {
   margin-top: 11px;
   font-size: clamp(20px, 1.9vw, 28px);
+}
+
+.survival-value-guide {
+  display: grid;
+  grid-template-columns: auto auto minmax(220px, 1fr);
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0 10px 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(196, 139, 48, .38);
+  background: rgba(0, 0, 0, .18);
+  color: #cfc4a4;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.survival-value-guide strong {
+  color: #ffe09c;
+  white-space: nowrap;
+}
+
+.survival-value-guide code {
+  padding: 3px 7px;
+  border: 1px solid rgba(196, 139, 48, .3);
+  color: #f3d99b;
+  background: rgba(26, 20, 11, .55);
+  font-family: inherit;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .analysis-metric small,
@@ -1971,6 +2000,8 @@ tbody tr:hover td {
   .full-job-usage { grid-template-columns: 1fr; }
   .full-job-chart { min-height: 390px; }
   .analysis-two-column { grid-template-columns: 1fr; }
+  .survival-value-guide { grid-template-columns: auto 1fr; }
+  .survival-value-guide span { grid-column: 1 / -1; }
   .role-job-grid { grid-template-columns: 1fr; }
   .history-row-header { display: none; }
   .history-row:not(.history-row-header) {

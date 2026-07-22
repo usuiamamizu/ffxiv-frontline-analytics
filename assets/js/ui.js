@@ -196,7 +196,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-013";
+const ASSET_VERSION = "20260722-014";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -566,8 +566,13 @@ function summaryAnalysis(matches, summary) {
           ${averageMetricCard("平均被ダメージ", formatNumber(avgRaw(matches, "damageTaken")))}
           ${averageMetricCard("平均回復量", formatNumber(avgRaw(matches, "healing")))}
           ${averageMetricCard("K/D比", formatDecimal(kdRatio(matches), 2))}
-          ${averageMetricCard("K+A", formatDecimal(avgKA(matches), 1))}
+          ${averageMetricCard("平均被ダメ生存値", formatNumber(damageSurvivalValue(matches)))}
         </div>
+        <aside class="survival-value-guide" aria-label="被ダメ生存値の説明">
+          <strong>被ダメ生存値とは</strong>
+          <code>被ダメージ合計 ÷（試合数 + Down合計）</code>
+          <span>1回の生存機会あたりに受け止めた被ダメージ量の目安です。値が高いほど、少ないDownで多くの攻撃を引き受けています。ジョブ・ロール特性や味方からの支援にも左右されるため、他の戦績とあわせて確認してください。</span>
+        </aside>
       </section>
 
       <section class="analysis-block">
