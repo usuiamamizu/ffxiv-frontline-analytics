@@ -9,6 +9,7 @@ const App = {
     this.storageIssues = stored.issues;
     this.bindTabs();
     this.bindDataActions();
+    this.bindMatchDetails();
     UI.render(this.state);
     if (this.storageIssues.length) {
       setCsvStatus(`保存済みデータに${this.storageIssues.length}件の問題があります。データは削除していません。JSONバックアップを保存して内容を確認してください。\n${this.storageIssues.slice(0, 3).join("\n")}`);
@@ -69,6 +70,44 @@ const App = {
     panel.hidden = false;
     if (options.focus) tab.focus();
     requestAnimationFrame(() => UI.redrawCharts(this.state));
+  },
+  bindMatchDetails() {
+    const dialog = document.querySelector("#matchDetailDialog");
+    if (!dialog) return;
+    document.addEventListener("click", event => {
+      const record = event.target.closest?.("[data-match-id]");
+      if (record) this.openMatchDetail(record.dataset.matchId, record);
+      if (event.target.closest?.("[data-close-match-detail]")) dialog.close();
+      const navigation = event.target.closest?.("[data-match-nav]");
+      if (navigation && !navigation.disabled) this.moveMatchDetail(navigation.dataset.matchNav);
+    });
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      if (this.matchDetailTrigger?.isConnected) this.matchDetailTrigger.focus();
+      this.matchDetailTrigger = null;
+    });
+  },
+  openMatchDetail(matchId, trigger = null) {
+    const matches = Analytics.byDate(this.state.matches);
+    const index = matches.findIndex(match => String(match.id) === String(matchId));
+    if (index < 0) return;
+    const dialog = document.querySelector("#matchDetailDialog");
+    this.matchDetailIndex = index;
+    this.matchDetailTrigger = trigger || this.matchDetailTrigger;
+    document.querySelector("#matchDetailBody").innerHTML = matchDetailContent(matches[index]);
+    document.querySelector("#matchDetailTitle").textContent = `試合 No.${matches[index].matchNo || index + 1}`;
+    document.querySelector("#matchDetailPosition").textContent = `${index + 1} / ${matches.length}`;
+    dialog.querySelector('[data-match-nav="previous"]').disabled = index === 0;
+    dialog.querySelector('[data-match-nav="next"]').disabled = index === matches.length - 1;
+    if (!dialog.open) dialog.showModal();
+  },
+  moveMatchDetail(direction) {
+    const matches = Analytics.byDate(this.state.matches);
+    const offset = direction === "previous" ? -1 : 1;
+    const match = matches[this.matchDetailIndex + offset];
+    if (match) this.openMatchDetail(match.id);
   },
   bindDataActions() {
     document.querySelector("#importCsv").addEventListener("change", event => {

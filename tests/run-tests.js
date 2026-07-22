@@ -14,7 +14,7 @@ vm.createContext(context);
 runScript("assets/js/data.js", "this.testData = FFXIV_DATA;");
 runScript("assets/js/analytics.js", "this.testAnalytics = Analytics;");
 runScript("assets/js/app.js", "this.testImport = { parseMatchesCsv, normalizeJsonMatches };");
-runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis };");
+runScript("assets/js/ui.js", "this.testUi = { escapeHtml, mapAnalysis, matchDetailContent, bestAnalysis };");
 
 const header = "Date,Time,Map,GrandCompany,Rank,Job,Kills,Deaths,Assists,Damage,DamageTaken,Healing,TopDamage";
 const [mapA, mapB] = context.testData.maps;
@@ -51,6 +51,14 @@ test("Map leaders prefer three or more matches", () => {
 test("Tab changes do not rebuild the full UI", () => {
   const source = fs.readFileSync("assets/js/app.js", "utf8");
   return !/resize[^\n]+UI\.render/.test(source) && /requestAnimationFrame\(\(\) => UI\.redrawCharts/.test(source);
+});
+test("Best records link to match details", () => {
+  const html = context.testUi.bestAnalysis([match()]);
+  return html.includes('data-match-id="test-1"') && html.includes("試合詳細を開く");
+});
+test("Match details escape imported text", () => {
+  const html = context.testUi.matchDetailContent(match({ map: `<img src=x>` }));
+  return !html.includes("<img src=x>") && html.includes("&lt;img src=x&gt;");
 });
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));

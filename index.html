@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FFXIV Frontline Battle Analytics</title>
-  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-026">
+  <link rel="stylesheet" href="./assets/css/styles.css?v=20260722-027">
 </head>
 <body>
   <div class="app-shell">
@@ -140,11 +140,29 @@
     </main>
   </div>
 
-  <script src="./assets/js/data.js?v=20260722-026"></script>
-  <script src="./assets/js/store.js?v=20260722-026"></script>
-  <script src="./assets/js/analytics.js?v=20260722-026"></script>
-  <script src="./assets/js/charts.js?v=20260722-026"></script>
-  <script src="./assets/js/ui.js?v=20260722-026"></script>
-  <script src="./assets/js/app.js?v=20260722-026"></script>
+  <dialog id="matchDetailDialog" class="match-detail-dialog" aria-labelledby="matchDetailTitle">
+    <div class="match-detail-shell">
+      <header class="match-detail-header">
+        <div>
+          <small>戦績詳細</small>
+          <h2 id="matchDetailTitle">試合記録</h2>
+        </div>
+        <button class="match-detail-close" type="button" data-close-match-detail aria-label="戦績詳細を閉じる">×</button>
+      </header>
+      <div id="matchDetailBody" class="match-detail-body"></div>
+      <footer class="match-detail-footer">
+        <button type="button" data-match-nav="previous">← 前の試合</button>
+        <span id="matchDetailPosition"></span>
+        <button type="button" data-match-nav="next">次の試合 →</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <script src="./assets/js/data.js?v=20260722-027"></script>
+  <script src="./assets/js/store.js?v=20260722-027"></script>
+  <script src="./assets/js/analytics.js?v=20260722-027"></script>
+  <script src="./assets/js/charts.js?v=20260722-027"></script>
+  <script src="./assets/js/ui.js?v=20260722-027"></script>
+  <script src="./assets/js/app.js?v=20260722-027"></script>
 </body>
 </html>

@@ -224,7 +224,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-026";
+const ASSET_VERSION = "20260722-027";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -545,7 +545,7 @@ function gcName(name) {
 }
 function recordRow(label, match, key) {
   if (!match) return `<div class="record-item"><span>${label}</span><strong>-</strong></div>`;
-  return `<div class="record-item"><span>${label}</span><strong>${formatNumber(match[key])} <small>(${escapeHtml(jobName(match.job))})</small></strong></div>`;
+  return `<button type="button" class="record-item record-match-link" data-match-id="${escapeHtml(match.id)}" aria-label="${escapeHtml(label)}の試合詳細を開く"><span>${label}</span><strong>${formatNumber(match[key])} <small>(${escapeHtml(jobName(match.job))})</small></strong></button>`;
 }
 function detailCard(label, value) {
   return `<div class="detail-card"><span class="muted">${label}</span><h3>${value}</h3></div>`;
@@ -748,7 +748,7 @@ function bestMatchBy(matches, definition) {
 function bestRecordCard(definition, match) {
   const value = match ? definition.value(match) : 0;
   return `
-    <article class="best-record-card">
+    <button type="button" class="best-record-card record-match-link" data-match-id="${escapeHtml(match.id)}" aria-label="${escapeHtml(definition.label)}の試合詳細を開く">
       <span>${definition.label}</span>
       <strong>${formatBestValue(value, definition.type)}</strong>
       <div class="best-record-context">
@@ -756,7 +756,7 @@ function bestRecordCard(definition, match) {
         <small>${escapeHtml(match.date.replaceAll("-", "/"))} ${escapeHtml(match.time || "")}</small>
         <small>${escapeHtml(match.map)}・${match.rank}位</small>
       </div>
-    </article>
+    </button>
   `;
 }
 
@@ -770,10 +770,12 @@ function bestRankingPanel(definition, matches) {
       <ol>
         ${rows.map((match, index) => `
           <li>
-            <span>${index + 1}</span>
-            <b>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</b>
-            <strong>${formatBestValue(definition.value(match), definition.type)}</strong>
-            <small>${escapeHtml(match.date.replaceAll("-", "/"))}・${escapeHtml(match.map)}</small>
+            <button type="button" class="best-ranking-link record-match-link" data-match-id="${escapeHtml(match.id)}" aria-label="${index + 1}位の試合詳細を開く">
+              <span>${index + 1}</span>
+              <b>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</b>
+              <strong>${formatBestValue(definition.value(match), definition.type)}</strong>
+              <small>${escapeHtml(match.date.replaceAll("-", "/"))}・${escapeHtml(match.map)}</small>
+            </button>
           </li>
         `).join("")}
       </ol>
@@ -795,14 +797,43 @@ function recordProgression(matches, definitions) {
     });
   });
   return events.reverse().slice(0, 16).map(event => `
-    <article class="record-timeline-row">
+    <button type="button" class="record-timeline-row record-match-link" data-match-id="${escapeHtml(event.match.id)}" aria-label="${escapeHtml(event.definition.label)}を更新した試合の詳細を開く">
       <time>${escapeHtml(event.match.date.replaceAll("-", "/"))}<small>${escapeHtml(event.match.time || "")}</small></time>
       <span>${event.definition.label}</span>
       <strong>${formatBestValue(event.value, event.definition.type)}</strong>
       <b>${jobIcon(event.match.job)}${escapeHtml(jobName(event.match.job))}</b>
       <small>${escapeHtml(event.match.map)}・${event.match.rank}位</small>
-    </article>
+    </button>
   `).join("") || `<p class="history-empty">更新履歴がありません</p>`;
+}
+
+function matchDetailContent(match) {
+  const survivalValue = matchSurvivalValue(match);
+  return `
+    <section class="match-detail-summary">
+      <div><small>試合 No.</small><strong>${formatNumber(match.matchNo)}</strong></div>
+      <div><small>日時</small><strong>${escapeHtml(match.date.replaceAll("-", "/"))}<span>${escapeHtml(match.time || "-")}</span></strong></div>
+      <div><small>マップ</small><strong>${escapeHtml(match.map)}</strong></div>
+    </section>
+    <section class="match-detail-identity">
+      <div><small>所属勢力</small><strong>${gcName(match.grandCompany)}</strong></div>
+      <div><small>順位</small><strong><span class="rank-badge rank-${match.rank}">${match.rank}位</span></strong></div>
+      <div><small>ジョブ</small><strong>${jobIcon(match.job)}${escapeHtml(jobName(match.job))}</strong></div>
+    </section>
+    <section class="match-detail-stats">
+      ${matchDetailStat("KO", match.kills)}
+      ${matchDetailStat("Down", match.deaths)}
+      ${matchDetailStat("Assist", match.assists)}
+      ${matchDetailStat("与ダメージ", match.damage, match.topDamage ? "与ダメージ1位" : "")}
+      ${matchDetailStat("被ダメージ", match.damageTaken)}
+      ${matchDetailStat("回復量", match.healing)}
+      ${matchDetailStat("被ダメ生存値", survivalValue)}
+    </section>
+  `;
+}
+
+function matchDetailStat(label, value, badge = "") {
+  return `<div class="match-detail-stat${badge ? " match-detail-stat-highlight" : ""}"><small>${label}</small><strong>${formatNumber(value)}</strong>${badge ? `<span>${badge}</span>` : ""}</div>`;
 }
 
 function matchSurvivalValue(match) {
