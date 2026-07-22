@@ -196,7 +196,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-016";
+const ASSET_VERSION = "20260722-017";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",
@@ -365,15 +365,15 @@ function survivalAnalysis(stats) {
         </article>
         <article class="survival-index-panel">
           <h4>被ダメ生存指数 TOP3</h4>
+          <ol class="ranking-list survival-index-list">
+            ${top.length ? top.map((point, index) => survivalIndexRow(point, index)).join("") : `<li class="empty-row">データなし</li>`}
+          </ol>
           <aside class="survival-index-guide" aria-label="被ダメ生存指数の説明">
             <strong>計算式</strong>
             <code>被ダメ生存値 = 被ダメージ合計 ÷（試合数 + Down合計）</code>
             <code>生存指数 = ジョブ別被ダメ生存値 ÷ 全試合の被ダメ生存値 × 100</code>
             <span>全試合平均を100とし、100より高いほど少ないDownで多くの攻撃を引き受けた目安です。ジョブ・ロール特性や味方からの支援にも左右されるため、他の戦績とあわせて確認してください。</span>
           </aside>
-          <ol class="ranking-list survival-index-list">
-            ${top.length ? top.map((point, index) => survivalIndexRow(point, index)).join("") : `<li class="empty-row">データなし</li>`}
-          </ol>
         </article>
       </section>
     </section>
