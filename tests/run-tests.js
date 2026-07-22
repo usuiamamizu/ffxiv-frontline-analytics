@@ -71,6 +71,10 @@ test("Role donut uses icons without center text", () => {
   const source = fs.readFileSync("assets/js/ui.js", "utf8");
   return /#roleChart"\), roleSegments, "", \{ legend: false, icons: true \}/.test(source);
 });
+test("Role stacked bar includes role icons", () => {
+  const source = fs.readFileSync("assets/js/ui.js", "utf8");
+  return /role-stacked-segment[\s\S]*?roleIcon\(role\.id\)/.test(source);
+});
 
 results.forEach(result => console.log(`${result.ok ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`));
 const failed = results.filter(result => !result.ok);

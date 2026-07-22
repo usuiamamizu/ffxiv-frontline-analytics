@@ -294,7 +294,7 @@ function drawDonutIcons(ctx, segments, geometry) {
 
 function drawDonutIconBadge(ctx, x, y, iconSize, badge) {
   const size = Math.max(14, Math.round(iconSize * .42));
-  const left = x + iconSize / 2 - size * .78;
+  const left = x - iconSize / 2 - size * .22;
   const top = y + iconSize / 2 - size * .78;
   ctx.fillStyle = "rgba(3, 12, 16, .96)";
   ctx.strokeStyle = "#e0ad51";

@@ -225,7 +225,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-031";
+const ASSET_VERSION = "20260722-032";
 const MIN_RANKING_MATCHES = 3;
 
 const JOB_COLORS = [
@@ -266,7 +266,9 @@ function roleAnalysis(matches) {
       <section class="role-usage-overview">
         <div class="role-stacked-bar" aria-label="ロール使用率">
           ${roles.filter(role => role.value > 0).map(role => `
-            <span style="--role-color:${role.color};--role-width:${role.rate * 100}%" title="${role.label} ${formatPercent(role.rate)}"></span>
+            <span class="role-stacked-segment${role.rate < .08 ? " is-narrow" : ""}" style="--role-color:${role.color};--role-width:${role.rate * 100}%" title="${role.label} ${formatPercent(role.rate)}">
+              ${roleIcon(role.id)}
+            </span>
           `).join("")}
         </div>
         <div class="role-stacked-legend">

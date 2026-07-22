@@ -602,13 +602,34 @@ button, .import-button {
   background: rgba(0, 0, 0, .48);
   box-shadow: inset 0 0 0 1px rgba(255, 218, 137, .06);
 }
-.role-stacked-bar span {
+.role-stacked-bar > span {
   display: block;
   flex: 0 0 var(--role-width);
   min-width: 0;
   height: 100%;
   background: var(--role-color);
   box-shadow: inset -1px 0 rgba(0, 0, 0, .42);
+}
+.role-stacked-bar > .role-stacked-segment {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.role-stacked-segment .role-icon {
+  flex-basis: 28px;
+  width: 28px;
+  height: 28px;
+}
+.role-stacked-segment .role-icon img {
+  width: 26px;
+  height: 26px;
+}
+.role-stacked-segment .role-icon-badge {
+  left: -2px;
+  bottom: -1px;
+  width: 14px;
+  height: 14px;
+  font-size: 9px;
 }
 .role-stacked-legend {
   display: grid;
@@ -3028,7 +3049,8 @@ button:focus-visible,
 }
 .role-icon-badge {
   position: absolute;
-  right: -3px;
+  right: auto;
+  left: -3px;
   bottom: -3px;
   display: grid;
   place-items: center;
@@ -3325,6 +3347,7 @@ th { font-size: 12px; font-weight: 800; }
   .analysis-block h3 small,
   .analysis-section-title small { width: 100%; margin-left: 18px; }
   .role-stacked-legend { grid-template-columns: 1fr; }
+  .role-stacked-segment.is-narrow .role-icon { display: none; }
   .role-job-panel h4 { align-items: flex-start; flex-direction: column; }
   .role-job-panel h4 small { margin-left: 40px; }
   .history-row:not(.history-row-header) > span::before,
