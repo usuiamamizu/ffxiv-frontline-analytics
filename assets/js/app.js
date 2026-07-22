@@ -1,10 +1,13 @@
 const App = {
   state: { matches: [] },
-  init() {
-    this.state.matches = Store.load();
+  async init() {
+    this.state.matches = await Store.init();
     this.bindTabs();
     this.bindDataActions();
     UI.render(this.state);
+    setCsvStatus(Store.mode === "indexeddb"
+      ? "戦績データはこのブラウザ内に保存されます。初回登録も追加登録も「CSV読み込み」を使用します。"
+      : "IndexedDBを利用できないため、互換保存モードで動作しています。JSONバックアップを定期的に保存してください。");
     window.addEventListener("resize", debounce(() => UI.render(this.state), 150));
   },
   bindTabs() {
@@ -35,12 +38,12 @@ const App = {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         try {
           const imported = parseMatchesCsv(reader.result);
           const result = mergeImportedMatches(this.state.matches, imported);
+          await Store.add(result.addedMatches);
           this.state.matches = result.matches;
-          Store.save(this.state.matches);
           UI.render(this.state);
           setCsvStatus(`CSV読み込み完了：${result.added}件追加 / ${result.skipped}件重複を除外。合計${this.state.matches.length}件です。`);
         } catch (error) {
@@ -63,13 +66,14 @@ const App = {
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         try {
           const parsed = JSON.parse(reader.result);
-          const matches = Array.isArray(parsed.matches) ? parsed.matches : parsed;
-          if (!Array.isArray(matches)) throw new Error("JSON内に戦績データがありません。");
-          this.state.matches = matches;
-          Store.save(this.state.matches);
+          const sourceMatches = Array.isArray(parsed.matches) ? parsed.matches : parsed;
+          if (!Array.isArray(sourceMatches)) throw new Error("JSON内に戦績データがありません。");
+          const matches = normalizeJsonMatches(sourceMatches);
+          const storedMatches = await Store.replaceAll(matches);
+          this.state.matches = storedMatches;
           UI.render(this.state);
           setCsvStatus(`JSONバックアップから${matches.length}件を復元しました。`);
         } catch (error) {
@@ -80,11 +84,15 @@ const App = {
       };
       reader.readAsText(file);
     });
-    document.querySelector("#clearData").addEventListener("click", () => {
+    document.querySelector("#clearData").addEventListener("click", async () => {
       if (!confirm("保存済みの全戦績データを削除します。よろしいですか？")) return;
-      this.state.matches = Store.clear();
-      UI.render(this.state);
-      setCsvStatus("保存済みの戦績データをすべて削除しました。");
+      try {
+        this.state.matches = await Store.clear();
+        UI.render(this.state);
+        setCsvStatus("保存済みの戦績データをすべて削除しました。");
+      } catch (error) {
+        setCsvStatus(error.message || "戦績データを削除できませんでした。");
+      }
     });
   }
 };
@@ -124,7 +132,37 @@ function mergeImportedMatches(currentMatches, importedMatches) {
   }
 
   matches.sort((a, b) => (a.matchNo || 0) - (b.matchNo || 0));
-  return { matches, added, skipped };
+  return { matches, addedMatches: matches.slice(matches.length - added), added, skipped };
+}
+
+function normalizeJsonMatches(sourceMatches) {
+  const usedIds = new Set();
+  return sourceMatches.map((record, index) => {
+    if (!record || typeof record !== "object" || Array.isArray(record)) {
+      throw new Error(`JSONの${index + 1}件目を確認してください。`);
+    }
+    const match = {
+      id: cleanCell(record.id) || createImportedId(index),
+      matchNo: Number(record.matchNo) || index + 1,
+      date: normalizeDate(record.date),
+      time: cleanCell(record.time),
+      map: resolveValue(record.map, FFXIV_DATA.maps),
+      grandCompany: resolveValue(record.grandCompany, FFXIV_DATA.grandCompanies),
+      rank: toNumber(record.rank),
+      job: resolveJob(record.job),
+      kills: toNumber(record.kills),
+      deaths: toNumber(record.deaths),
+      assists: toNumber(record.assists),
+      damage: toNumber(record.damage),
+      damageTaken: toNumber(record.damageTaken),
+      healing: toNumber(record.healing),
+      topDamage: typeof record.topDamage === "boolean" ? record.topDamage : toBoolean(record.topDamage)
+    };
+    if (usedIds.has(match.id)) match.id = createImportedId(index);
+    usedIds.add(match.id);
+    validateMatch(match, index + 1, "JSON");
+    return match;
+  });
 }
 
 function getNextMatchNo(matches) {
@@ -214,7 +252,7 @@ function normalizeCsvMatch(record, rowNumber) {
   return match;
 }
 
-function validateMatch(match, rowNumber) {
+function validateMatch(match, rowNumber, source = "CSV") {
   const missing = [];
   ["date", "map", "grandCompany", "job"].forEach(key => {
     if (!match[key]) missing.push(key);
@@ -223,7 +261,18 @@ function validateMatch(match, rowNumber) {
     if (!Number.isFinite(match[key])) missing.push(key);
   });
   if (match.rank < 1 || match.rank > 3) missing.push("rank(1-3)");
-  if (missing.length) throw new Error(`CSVの${rowNumber}行目を確認してください：${missing.join(", ")}`);
+  ["kills", "deaths", "assists", "damage", "damageTaken", "healing"].forEach(key => {
+    if (Number.isFinite(match[key]) && match[key] < 0) missing.push(`${key}(0以上)`);
+  });
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(match.date)) missing.push("date(YYYY-MM-DD)");
+  if (missing.length) {
+    const position = source === "CSV" ? `${rowNumber}行目` : `${rowNumber}件目`;
+    throw new Error(`${source}の${position}を確認してください：${[...new Set(missing)].join(", ")}`);
+  }
+}
+
+function createImportedId(index) {
+  return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`;
 }
 
 function normalizeHeader(header) {
@@ -329,4 +378,9 @@ function debounce(fn, wait) {
   };
 }
 
-document.addEventListener("DOMContentLoaded", () => App.init());
+document.addEventListener("DOMContentLoaded", () => {
+  App.init().catch(error => {
+    console.error(error);
+    setCsvStatus(error.message || "保存データを読み込めませんでした。ページを再読み込みしてください。");
+  });
+});

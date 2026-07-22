@@ -25,6 +25,8 @@ README.md
 ## 動作
 
 - CSVインポートはブラウザのFile APIで動作します。
-- 戦績データはブラウザのlocalStorageに保存します。
+- 戦績データはブラウザのIndexedDBに保存します。旧版のlocalStorageデータは初回起動時に自動移行されます。
+- IndexedDBが利用できない環境ではlocalStorageへ自動的に切り替わります。
+- サイトデータの削除や端末変更に備え、JSONバックアップを定期的に保存してください。
 - ジョブアイコンは `assets/job-icons/` から相対パスで表示します。
 - サーバー処理や外部CDNは使用しません。
