@@ -11,6 +11,7 @@ const App = {
     this.bindDataActions();
     this.bindDataEditor();
     this.bindMatchDetails();
+    this.bindGuideImage();
     UI.render(this.state);
     if (this.storageIssues.length) {
       setCsvStatus(`保存済みデータに${this.storageIssues.length}件の問題があります。データは削除していません。JSONバックアップを保存して内容を確認してください。\n${this.storageIssues.slice(0, 3).join("\n")}`);
@@ -48,7 +49,11 @@ const App = {
     });
     document.addEventListener("click", event => {
       const trigger = event.target.closest?.("[data-open-tab]");
-      if (trigger) this.openTab(trigger.dataset.openTab);
+      if (!trigger) return;
+      this.openTab(trigger.dataset.openTab);
+      if (trigger.dataset.scrollTarget) {
+        requestAnimationFrame(() => document.querySelector(trigger.dataset.scrollTarget)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      }
     });
   },
   openTab(tabId, options = {}) {
@@ -71,6 +76,25 @@ const App = {
     panel.hidden = false;
     if (options.focus) tab.focus();
     requestAnimationFrame(() => UI.redrawCharts(this.state));
+  },
+  bindGuideImage() {
+    const dialog = document.querySelector("#guideImageDialog");
+    if (!dialog) return;
+    document.addEventListener("click", event => {
+      const openButton = event.target.closest?.("[data-open-guide-image]");
+      if (openButton) {
+        this.guideImageTrigger = openButton;
+        dialog.showModal();
+      }
+      if (event.target.closest?.("[data-close-guide-image]")) dialog.close();
+    });
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      if (this.guideImageTrigger?.isConnected) this.guideImageTrigger.focus();
+      this.guideImageTrigger = null;
+    });
   },
   bindMatchDetails() {
     const dialog = document.querySelector("#matchDetailDialog");

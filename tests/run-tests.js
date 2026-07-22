@@ -46,8 +46,24 @@ test("Screenshot guide uses the current CSV format", () => {
     && source.includes("赤は黒渦団、黄色は双蛇党、青は不滅隊")
     && source.includes("KOは戦績ウィンドウのK、DownはD、AssistsはAの数値を使う")
     && prompt.includes("この行を自分の戦績として、各項目の数値を読み取る")
+    && prompt.includes("経験値バー横に表示された英語のジョブ略称から判定する")
+    && prompt.includes("経験値バーから判定できない場合のみ、自分の行のジョブアイコンを補助的に使用する")
+    && prompt.includes("DateはYYYY-MM-DD、TimeはHH:MM形式")
+    && prompt.includes("UTF-8形式のCSVファイル")
     && !prompt.includes("必ず「総与ダメージ量」でソートされている画像を使う")
     && !source.match(/id="chatGptPromptText"[\s\S]*?MatchNo列は作らない/);
+});
+test("Screenshot guide supports zoom and privacy guidance", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  return source.includes('id="guideImageDialog"')
+    && source.includes("画像をタップして拡大")
+    && source.includes("スクリーンショットの取り扱いについて")
+    && source.includes("1枚＝1試合・複数試合まとめて送信可能");
+});
+test("Data tab links directly to the screenshot guide", () => {
+  const source = fs.readFileSync("index.html", "utf8");
+  return source.includes('data-open-tab="settings" data-scroll-target="#screenshotGuideTitle"')
+    && source.includes("スクリーンショットからCSVを作る方法を見る");
 });
 test("Registered match cards provide edit and delete actions", () => {
   const html = context.testUi.dataRecordCard(match());

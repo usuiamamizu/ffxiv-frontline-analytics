@@ -1071,6 +1071,20 @@ th {
 .match-form button { align-self: end; }
 .action-row { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; align-items: center; }
 .action-row button, .import-button { padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; }
+
+.csv-help-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 14px 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(196, 139, 48, .55);
+  background: rgba(196, 139, 48, .08);
+}
+.csv-help-link div { display: grid; gap: 3px; min-width: 0; margin-right: auto; }
+.csv-help-link strong { color: var(--gold-bright); font-size: var(--font-card-title); }
+.csv-help-link span { color: #d2c7aa; font-size: var(--font-body); line-height: 1.6; }
+.csv-help-link button { flex: 0 0 auto; }
 .import-button input { display: none; }
 .import-button.primary {
   background: linear-gradient(#d8a43a, #7a4e12 55%, #251404);
@@ -2114,6 +2128,18 @@ tbody tr:hover td {
   margin: 0;
 }
 
+.screenshot-zoom-trigger {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.screenshot-zoom-trigger:focus-visible { outline: 2px solid #ffe09c; outline-offset: 3px; }
+
 .screenshot-example img {
   display: block;
   width: 100%;
@@ -2124,11 +2150,21 @@ tbody tr:hover td {
 }
 
 .screenshot-example figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 8px 2px 0;
   color: var(--muted);
   font-size: var(--font-body);
   font-weight: 700;
   line-height: 1.6;
+}
+
+.screenshot-example figcaption button {
+  min-height: 34px;
+  padding: 4px 11px;
+  white-space: nowrap;
 }
 
 .capture-checklist {
@@ -2202,6 +2238,44 @@ tbody tr:hover td {
 
 .capture-note strong { color: #ffe09c; }
 .privacy-note { margin: 10px 1px 0; }
+
+.privacy-notice {
+  margin: 0 14px 14px;
+  padding: 11px 13px;
+  border: 1px solid rgba(196, 139, 48, .45);
+  border-left: 4px solid #d5a63b;
+  background: rgba(196, 139, 48, .07);
+}
+.privacy-notice strong { color: #ffe09c; font-size: var(--font-card-title); }
+.privacy-notice p { margin: 5px 0 0; color: #d2c7aa; font-size: var(--font-body); line-height: 1.7; }
+
+.guide-image-dialog {
+  width: min(96vw, 1980px);
+  max-width: none;
+  height: min(94vh, 1160px);
+  max-height: none;
+  padding: 0;
+  border: 1px solid rgba(231, 181, 77, .8);
+  color: var(--text);
+  background: #020b0f;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, .8);
+}
+.guide-image-dialog::backdrop { background: rgba(0, 4, 7, .88); backdrop-filter: blur(2px); }
+.guide-image-shell { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+.guide-image-shell > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(196, 139, 48, .55);
+  background: rgba(196, 139, 48, .08);
+}
+.guide-image-shell h2 { margin: 2px 0 0; color: var(--gold-bright); font-size: var(--font-section); }
+.guide-image-shell small { color: #cdb476; font-weight: 700; letter-spacing: .08em; }
+.guide-image-viewport { min-width: 0; min-height: 0; overflow: auto; background: #000; }
+.guide-image-viewport img { display: block; width: auto; max-width: none; height: auto; }
+.guide-image-shell > p { margin: 0; padding: 8px 14px; color: var(--muted); font-size: var(--font-caption); }
 
 .chatgpt-prompt-guide {
   margin: 0 14px 14px;
@@ -3683,13 +3757,20 @@ th { font-size: 12px; font-weight: 800; }
 
 @media (max-width: 760px) {
   .screenshot-import-guide { margin: 8px; }
+  .csv-help-link { align-items: stretch; flex-direction: column; margin: 0 8px 10px; }
+  .csv-help-link button { width: 100%; white-space: normal; }
   .guide-section-head {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
   }
   .screenshot-guide-layout { padding: 8px; }
+  .screenshot-example figcaption { align-items: stretch; flex-direction: column; }
+  .screenshot-example figcaption button { width: 100%; }
   .capture-checklist { padding: 10px; }
+  .privacy-notice { margin: 0 8px 8px; }
+  .guide-image-dialog { width: 100vw; height: 100dvh; border: 0; }
+  .guide-image-shell > header { padding: 8px 10px; }
   .chatgpt-prompt-guide { margin: 0 8px 8px; }
   .prompt-toolbar {
     align-items: stretch;
