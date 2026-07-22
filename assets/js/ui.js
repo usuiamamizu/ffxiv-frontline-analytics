@@ -6,7 +6,6 @@ const UI = {
     this.summaryCards(summary);
     this.averageCards(matches);
     this.latestRows(Analytics.latest(matches));
-    this.jobSummary(Analytics.jobStats(matches));
     this.mapSummary(Analytics.mapStats(matches));
     this.bestRecords(Analytics.bests(matches));
     this.streakRecords(matches);
@@ -28,12 +27,12 @@ const UI = {
         <div class="card-body"><strong>${formatNumber(summary.total)}</strong><small>試合</small></div>
       </article>
       <article class="summary-card rank-card" style="--r1:${summary.ranks[1] || .01}fr;--r2:${summary.ranks[2] || .01}fr;--r3:${summary.ranks[3] || .01}fr">
-        <span class="card-label">順位別割合</span>
+        <span class="card-label">順位別回数</span>
         <div class="card-body rank-card-body">
           <div class="rank-breakdown">
-            <div>1位<b>${summary.ranks[1]}</b><small>${formatPercent(summary.ranks[1] / rankTotal)}</small></div>
-            <div>2位<b>${summary.ranks[2]}</b><small>${formatPercent(summary.ranks[2] / rankTotal)}</small></div>
-            <div>3位<b>${summary.ranks[3]}</b><small>${formatPercent(summary.ranks[3] / rankTotal)}</small></div>
+            <div>1位<b>${summary.ranks[1]}</b></div>
+            <div>2位<b>${summary.ranks[2]}</b></div>
+            <div>3位<b>${summary.ranks[3]}</b></div>
           </div>
           <div class="rank-meter"><i></i><i></i><i></i></div>
         </div>
@@ -65,24 +64,21 @@ const UI = {
   latestRows(matches) {
     document.querySelector("#latestRows").innerHTML = matches.map((match, index) => `
       <tr>
-        <td>${match.matchNo || matches.length - index}</td>
-        <td>${match.date.replaceAll("-", "/")}</td>
-        <td>${match.map}</td>
-        <td>${gcName(match.grandCompany)}</td>
-        <td><span class="rank-badge rank-${match.rank}">${match.rank}位</span></td>
-        <td>${jobIcon(match.job)}${jobName(match.job)}</td>
-        <td>${match.kills}</td>
-        <td>${match.deaths}</td>
-        <td>${match.assists}</td>
-        <td class="${match.topDamage ? "top-damage-cell" : ""}">${formatNumber(match.damage)}</td>
-        <td>${formatNumber(match.damageTaken)}</td>
-        <td>${formatNumber(match.healing)}</td>
-        <td>${match.topDamage ? "○" : "-"}</td>
+        <td data-label="No.">${match.matchNo || matches.length - index}</td>
+        <td data-label="日付">${match.date.replaceAll("-", "/")}</td>
+        <td class="latest-map-cell" data-label="マップ">${match.map}</td>
+        <td data-label="所属勢力">${gcName(match.grandCompany)}</td>
+        <td data-label="順位"><span class="rank-badge rank-${match.rank}">${match.rank}位</span></td>
+        <td class="latest-job-cell" data-label="ジョブ">${jobIcon(match.job)}${jobName(match.job)}</td>
+        <td data-label="KO">${match.kills}</td>
+        <td data-label="Down">${match.deaths}</td>
+        <td data-label="Assist">${match.assists}</td>
+        <td data-label="与ダメージ" class="${match.topDamage ? "top-damage-cell" : ""}">${formatNumber(match.damage)}</td>
+        <td data-label="被ダメージ">${formatNumber(match.damageTaken)}</td>
+        <td data-label="回復量">${formatNumber(match.healing)}</td>
+        <td data-label="与ダメ1位">${match.topDamage ? "○" : "-"}</td>
       </tr>
     `).join("");
-  },
-  jobSummary(stats) {
-    document.querySelector("#jobSummary").innerHTML = statCards(stats, true, true);
   },
   mapSummary(stats) {
     document.querySelector("#mapSummary").innerHTML = statTable(stats, false, true);
@@ -203,7 +199,7 @@ const UI = {
   }
 };
 
-const ASSET_VERSION = "20260722-020";
+const ASSET_VERSION = "20260722-021";
 
 const JOB_COLORS = [
   "#9b2f24", "#b15a2a", "#c08c2f", "#8f8a3a", "#6f8c42", "#3f8b59", "#2f806e",

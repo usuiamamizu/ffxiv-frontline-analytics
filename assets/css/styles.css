@@ -852,11 +852,10 @@ canvas {
 .latest-panel, .bottom-grid { margin-top: 8px; }
 .bottom-grid {
   display: grid;
-  grid-template-columns: minmax(430px, 1.25fr) minmax(260px, .8fr) minmax(260px, .8fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-.bottom-grid .panel:first-child { grid-column: 1 / -1; }
-.bottom-grid .panel:nth-child(3), .bottom-grid .panel:nth-child(4) { min-height: 120px; }
+.bottom-grid .panel { min-height: 120px; }
 
 .table-wrap { overflow-x: auto; max-width: 100%; padding: 8px; }
 table {
@@ -1143,11 +1142,7 @@ body {
 
 .bottom-grid {
   gap: 12px;
-  grid-template-columns: minmax(430px, 1.25fr) minmax(260px, .8fr) minmax(260px, .8fr);
-}
-
-.bottom-grid .panel:first-child {
-  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .panel {
@@ -1231,7 +1226,7 @@ body {
   width: min(82%, 150px);
   aspect-ratio: 760 / 610;
   transform: translateX(-50%);
-  background: url("../brand/top-damage-laurel.png?v=20260722-020") center / contain no-repeat;
+  background: url("../brand/top-damage-laurel.png?v=20260722-021") center / contain no-repeat;
   opacity: .58;
   filter: drop-shadow(0 2px 2px rgba(74, 42, 9, .35));
   pointer-events: none;
@@ -1324,7 +1319,7 @@ tbody tr:hover td {
 }
 
 .bottom-grid {
-  grid-template-columns: minmax(430px, 1.25fr) minmax(260px, .8fr) minmax(260px, .8fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .stat-card-grid {
@@ -2077,7 +2072,8 @@ tbody tr:hover td {
   .xiv-logo { display: none; }
   .manager-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
   .summary-panel { grid-column: 1 / -1; grid-row: auto; }
-  .bottom-grid { grid-template-columns: 1fr; }
+  .bottom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bottom-grid .panel:first-child { grid-column: 1 / -1; }
   .full-job-usage { grid-template-columns: 1fr; }
   .full-job-chart { min-height: 390px; }
   .analysis-two-column { grid-template-columns: 1fr; }
@@ -2117,6 +2113,8 @@ tbody tr:hover td {
   .brand-main-title { font-size: clamp(18px, 5.8vw, 30px); white-space: normal; }
   .brand-ja-title { font-size: clamp(12px, 3.6vw, 16px); letter-spacing: .04em; }
   .header-meta, .manager-grid, .summary-grid, .average-grid, .match-form, .detail-grid { grid-template-columns: 1fr; }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .bottom-grid .panel:first-child { grid-column: auto; }
   .tab { flex-basis: 96px; }
   .ratio-strip { flex-direction: column; gap: 4px; }
   .job-usage-layout { grid-template-columns: 1fr; }
@@ -2178,6 +2176,55 @@ tbody tr:hover td {
     font-size: 10px;
   }
   .history-row:not(.history-row-header) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .latest-panel .table-wrap {
+    padding: 8px;
+    overflow: visible;
+  }
+  .latest-panel table,
+  .latest-panel tbody {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .latest-panel thead { display: none; }
+  .latest-panel tbody {
+    display: grid;
+    gap: 8px;
+  }
+  .latest-panel tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    padding: 8px;
+    border: 1px solid rgba(196, 139, 48, .52);
+    background: rgba(2, 13, 18, .72);
+  }
+  .latest-panel tbody td,
+  .latest-panel tbody tr:nth-child(even) td,
+  .latest-panel tbody tr:hover td {
+    display: block;
+    min-width: 0;
+    padding: 5px 6px;
+    border: 0;
+    background: rgba(0, 0, 0, .16);
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .latest-panel tbody td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .latest-panel .latest-map-cell,
+  .latest-panel .latest-job-cell {
+    grid-column: 1 / -1;
+  }
+  .latest-panel .top-damage-cell {
+    box-shadow: inset 0 0 0 1px rgba(255, 218, 112, .35);
+  }
   .distribution-row {
     grid-template-columns: 1fr;
     gap: 4px;
